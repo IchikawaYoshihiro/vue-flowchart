@@ -9,7 +9,6 @@ const DEFAULT_NODE = {
 const DEFAULT_BODY = '';
 const DEFAULT_OPTIONS = {
   canvas: {
-    bgcolor: "#f8f8f8",
     width: 960,
     height: 720,
     grid: 10,
@@ -23,7 +22,7 @@ const DEFAULT_OPTIONS = {
       body: 12,
     },
     text_color: {
-      title: "#563d7c",
+      title: "#111",
       body: "#000",
     },
     line_color: "#40b883",
@@ -32,7 +31,7 @@ const DEFAULT_OPTIONS = {
   link: {
     line_color: "#40b883",
     border_width: 1.5,
-  }
+  },
 };
 const DEFAULT_MANAGERS = {
   onTap({ node_id, node_ids }) { return true },

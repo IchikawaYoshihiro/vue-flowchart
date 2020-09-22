@@ -56,6 +56,15 @@ export default {
         this.$el.removeEventListener("touchmove", this.handleTouchMove)
       );
     },
+    handleBackgroundClick() {
+      const args = { node_id: null, node_ids: this.selected_node_ids };
+      if (!this.allow("onTap", args)) {
+        return;
+      }
+
+      args.node_ids = [];
+      this.$emit("onTap", args);
+    },
     // common process
     processStart(e, node) {
       this.tap = true;

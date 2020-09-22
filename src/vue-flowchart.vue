@@ -5,7 +5,6 @@
     xmlns="http://www.w3.org/2000/svg"
     @touchstart.stop.prevent="handleBackgroundClick"
     @mousedown.stop="handleBackgroundClick"
-    fill="url(#grid)"
     :transform="transform"
   >
     <slot name="grid">
@@ -155,14 +154,16 @@ export default {
      * ただしオプションの最大幅よりは広げない
      */
     calculateWidth(node) {
+      const buffer = 2;
       return Math.min(
         Math.max(
           node.size[0],
-          ([...node.title].length + 2) *
+          ([...node.title].length + buffer) *
             this.computedOptions.node.font_size.title,
           ...node.bodies.map(
             (b) =>
-              ([...b].length + 2) * this.computedOptions.node.font_size.body
+              ([...b].length + buffer) *
+              this.computedOptions.node.font_size.body
           )
         ),
         this.computedOptions.node.max_width
@@ -173,15 +174,6 @@ export default {
      */
     calculateY(node) {
       return this.computedOptions.canvas.height - node.position[1];
-    },
-    handleBackgroundClick() {
-      const args = { node_id: null, node_ids: this.selected_node_ids };
-      if (!this.allow("onTap", args)) {
-        return;
-      }
-
-      args.node_ids = [];
-      this.$emit("onTap", args);
     },
     isSelected(node) {
       return this.selected_node_ids.includes(node.id);
@@ -227,9 +219,6 @@ export default {
       return this.computedFlow.links.map((l) => {
         const f = this.computedNodes.find((n) => n.id == l.from);
         const t = this.computedNodes.find((n) => n.id == l.to);
-        if (!f || !t) {
-          console.warn("missing node", { l, f, t });
-        }
 
         const fromX = f.position[0] + f.size[0];
         const fromY =
@@ -237,7 +226,7 @@ export default {
             ? f.position[1] + f.size[1] / 2
             : f.position[1] +
               this.computedOptions.node.font_size.title * 2 +
-              this.computedOptions.node.font_size.body * (2 * l.port - 1);
+              this.computedOptions.node.font_size.body * 2 * l.index;
         const toX = t.position[0];
         const toY = t.position[1] + t.size[1] / 2;
 
