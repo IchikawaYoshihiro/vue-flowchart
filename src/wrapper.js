@@ -19,5 +19,6 @@ if (typeof window !== 'undefined') {
 if (GlobalVue) {
   GlobalVue.use(plugin);
 }
+component.install = install;
 
 export default component;

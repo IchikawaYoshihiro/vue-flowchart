@@ -1,5 +1,5 @@
 {
-  "name": "vue-flowchart",
+  "name": "@yosichikaw/vue-flowchart",
   "version": "0.1.0",
   "main": "dist/vue-flowchart.umd.js",
   "module": "dist/vue-flowchart.esm.js",
@@ -47,5 +47,21 @@
     "> 1%",
     "last 2 versions",
     "not dead"
-  ]
+  ],
+  "description": "draggable flowchart component",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/IchikawaYoshihiro/vue-flowchart.git"
+  },
+  "keywords": [
+    "vue",
+    "flowchart",
+    "draggable"
+  ],
+  "author": "Yoshihiro Ichikawa <yosichikaw+npm@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/IchikawaYoshihiro/vue-flowchart/issues"
+  },
+  "homepage": "https://github.com/IchikawaYoshihiro/vue-flowchart#readme"
 }
