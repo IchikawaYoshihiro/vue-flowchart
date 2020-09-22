@@ -29,19 +29,19 @@ Vue.use(VueFlowchart);
   <div id="app">
     <VueFlowchart
       :flow="flow"
-      :managers="managers"
+      :draggable="draggable"
       :selected_node_ids="selectedNodeIds"
-      @onMove="onMove"
-      @onMoveEnd="onMoveEnd"
-      @onTap="onTap"
-      @onLongTap="onLongTap"
+      :options="options"
+      @onTap="handleOnTap"
+      @onLongTap="handleOnLongTap"
+      @onDoubleTap="handleOnDoubleTap"
+      @onMove="handleOnMove"
     />
 </template>
 <script>
 export default {
   data() {
     return {
-      selected_nodes: [],
       flow: {
         nodes: [
           {id: 1, title: "title1", bodies: ["item1", "item2"], position: [10, 500], size: [100, 50]},
@@ -51,28 +51,21 @@ export default {
           { from: 1, index: 1, to: 2 },
         ],
       },
+      draggable: false,
+      selected_nodes: [],
+      options:{},
     };
   },
   computed: {
     selectedNodeIds() {
       return this.selected_nodes.map((n) => n.id);
     },
-    managers() {
-      return {
-        onTap: this.onTapManager,
-        onLongTap: this.onLongTapManager,
-        onMove: this.onMoveManager,
-      };
-    },
   },
   methods: {
-    onTapManager({ node_id, node_ids }) { return true },
-    onLongTapManager({ node_id, node_ids }) { return true },
-    onMoveManager({ dx, dy, node_ids }) { return true },
-    onTap({ node_id, node_ids }) {},
-    onLongTap({ node_id, node_ids }) {},
-    onMove({ dx, dy, node_ids }) {},
-    onMoveEnd({ node_ids }) {},
+    handleOnTap({node}){},
+    handleOnLongTap({node}){},
+    handleOnDoubleTap({node}){},
+    handleOnMove({dx,dy}){},
   }
 };
 </script>
@@ -84,7 +77,7 @@ export default {
 |---|---|---|---|
 |flow|Yes|Object|Flow chart display data.|
 |selected_node_ids|Yes|Array|List of IDs of selected nodes.|
-|managers|No|Object|Functions to manage events in the flowchart.|
+|draggable|No|boolean|Enables dragging. When the cursor is moved, the onMove event will fire. |
 |options|No|Object|Options.|
 
 ## flow
@@ -112,23 +105,6 @@ export default {
     },
     ...
   ],
-}
-```
-
-## managers
-Returns `true` in the manager if you allow the event to fire. Return `false` if you don't want to allow it.
-
-```
-manages: {
-    onTap({ node_id, node_ids }) {
-      return true || false;
-    },
-    onLongTap({ node_id, node_ids }) {
-      return true || false;
-    },
-    onMove({ dx, dy, node_ids }) {
-      return true || false;
-    },
 }
 ```
 
@@ -170,7 +146,7 @@ You must implement a listener to update the "original data of the flow" at the t
 
 |Listener|Argments|Return|Description|
 |---|---|---|
-|onTap|`{ node_id, node_ids }`|When nodes is clicked or tapped.|
-|onLongTap|`{ node_id, node_ids }`|When nodes is long tapped. (>=500ms)|
-|onMove|`{ dx, dy, node_ids }`|When nodes is being dragged.|
-|onMoveEnd|`{ node_ids }`|When the drag is finished.|
+|onTap|`{ node }`|When tapped.|
+|onLongTap|`{ node }`|When long-tapped. (>=500ms)|
+|onDoubleTap|`{ node }`|When tapped twice. (<500ms)|
+|onMove|`{ dx, dy }`|When draggable is enabled and the cursor is moved.|
