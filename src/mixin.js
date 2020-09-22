@@ -1,168 +1,130 @@
 export default {
   data() {
     return {
-      tap: false,
-      long_tap: false,
-      select_new_item: false,
-      tap_position: [0, 0],
-      prev_position: [0, 0],
-      dragging: false,
+      tap_record: null,
     };
   },
   methods: {
-    allow(manager_name, args) {
-      if (
-        this.computedManagers[manager_name] &&
-        typeof this.computedManagers[manager_name] === "function"
-      ) {
-        return this.computedManagers[manager_name](args);
+    // tap control
+    handleMouseDown(event, node) {
+      this.processStart(event, node);
+    },
+    handleTouchStart(e, node) {
+      this.processStart(e.touches[0], node);
+    },
+    processStart(event, node) {
+      if (event.cancelable) {
+        event.preventDefault();
+      }
+
+      const tap_record = { event, node, tapped_at: new Date(), is_double: false };
+      if (this.tap_record) {
+        tap_record.is_double = !this.tap_record.is_drag && !this.isMoved(tap_record) && this.isShortTime(tap_record);
+      }
+      this.tap_record = tap_record;
+    },
+    handleMouseUp(event, node) {
+      this.processEnd(event, node);
+    },
+    handleTouchEnd(e, node) {
+      this.processEnd(e.changedTouches[0], node);
+    },
+    processEnd(event, node) {
+      const tap_record = { event, node, tapped_at: new Date(), is_double: false };
+      if (this.isDifferentNode(tap_record)) {
+        return;
+      }
+
+      if (this.isLongTap(tap_record)) {
+        return this.$emit('onLongTap', { node });
+      }
+      if (this.isDoubleTap(tap_record)) {
+        return this.$emit('onDoubleTap', { node });
+      }
+      return this.$emit('onTap', { node });
+    },
+    isDifferentNode(node) {
+      if (node && this.tap_record.node) {
+        return !this.tap_record.node.id === node.id;
+      }
+      return !this.tap_record.node === node;
+    },
+    isMoved({ event }) {
+      return Math.abs(this.tap_record.event.clientX - event.clientX) > 10
+        && Math.abs(this.tap_record.event.clientY - event.clientY) > 10;
+    },
+    isShortTime({ tapped_at }) {
+      if (this.tap_record) {
+        const time = tapped_at - this.tap_record.tapped_at;
+        return time <= 500;
       }
       return true;
     },
-    // mouse event for PC
-    handleMouseDown(e, node) {
-      this.processStart(e, node);
-      this.$el.addEventListener("mousemove", this.handleMouseMove);
+    isLongTap(tap_record) {
+      if (this.tap_record) {
+        // background
+        if (this.tap_record.node === null && tap_record.node === null) {
+          return !this.isMoved(tap_record) && !this.isShortTime(tap_record)
+        }
+        // node
+        if (this.tap_record.node && tap_record.node) {
+          return this.tap_record.node.id && tap_record.node.id
+            && !this.isMoved(tap_record) && !this.isShortTime(tap_record);
+        }
+      }
+      return false;
     },
-    handleMouseUp(e, node) {
-      this.processEnd(e, node);
-      this.$el.removeEventListener("mousemove", this.handleMouseMove);
+    isDoubleTap(tap_record) {
+      if (this.tap_record) {
+        // background
+        if (this.tap_record.node === null && tap_record.node === null) {
+          return this.tap_record.is_double
+            && !this.isMoved(tap_record)
+            && this.isShortTime(tap_record);
+        }
+        // node
+        if (this.tap_record.node && tap_record.node) {
+          return this.tap_record.is_double
+            && !this.isMoved(tap_record)
+            && this.isShortTime(tap_record);
+        }
+      }
+      return false;
+    },
+    // drag control
+    addMouseMove() {
+      this.$el.addEventListener('mousemove', this.handleMouseMove)
+      this.$el.addEventListener('touchmove', this.handleTouchMove)
+    },
+    removeMousemove() {
+      this.$el.removeEventListener('mousemove', this.handleMouseMove)
+      this.$el.removeEventListener('touchmove', this.handleTouchMove)
     },
     handleMouseMove(e) {
-      if (this.long_tap) {
-        return this.$el.removeEventListener("mousemove", this.handleMouseMove);
-      }
-      this.processMove(e, () =>
-        this.$el.removeEventListener("mousemove", this.handleMouseMove)
-      );
-    },
-    // touch event for tablet
-    handleTouchStart(e, node) {
-      const t = e.touches[0];
-      this.processStart(t, node);
-      this.$el.addEventListener("touchmove", this.handleTouchMove);
-    },
-    handleTouchEnd(e, node) {
-      const t = e.changedTouches[0];
-      this.processEnd(t, node);
-      this.$el.removeEventListener("touchmove", this.handleTouchMove);
+      this.processMove(e);
     },
     handleTouchMove(e) {
-      if (this.long_tap) {
-        return this.$el.removeEventListener("touchmove", this.handleTouchMove);
-      }
-      const t = e.touches[0];
-      this.processMove(t, () =>
-        this.$el.removeEventListener("touchmove", this.handleTouchMove)
-      );
+      e.preventDefault();
+      this.processMove(e.touches[0]);
     },
-    handleBackgroundClick() {
-      const args = { node_id: null, node_ids: this.selected_node_ids };
-      if (!this.allow("onTap", args)) {
-        return;
+    processMove(event) {
+      const tap_record = { event, node: null, tapped_at: new Date(), is_double: false, is_drag: true };
+      if (!this.tap_record) {
+        this.tap_record = tap_record
       }
 
-      args.node_ids = [];
-      this.$emit("onTap", args);
-    },
-    // common process
-    processStart(e, node) {
-      this.tap = true;
-      this.long_tap = false;
-      this.select_new_item = false;
-      this.tap_position = [e.clientX, e.clientY];
-      this.prev_position = [e.clientX, e.clientY];
-
-      const args = { node_id: node.id, node_ids: this.selected_node_ids };
-      if (!this.allow("onTap", args)) {
-        return;
-      }
-
-      if (!this.isSelected(node)) {
-        this.select_new_item = true;
-        const args = {
-          node_id: node.id,
-          node_ids: [node.id, ...this.selected_node_ids],
+      if (this.isDragging(tap_record)) {
+        const diff = {
+          dx: tap_record.event.clientX - this.tap_record.event.clientX,
+          dy: tap_record.event.clientY - this.tap_record.event.clientY
         };
-        this.$emit("onTap", args);
-      }
-
-      // ロングタップ時の動作
-      setTimeout(() => {
-        if (this.tap && !this.isMoving(e)) {
-          this.tap = false;
-          this.long_tap = true;
-          const args = { node_id: node.id, node_ids: this.selected_node_ids };
-          if (!this.allow("onLongTap", args)) {
-            return;
-          }
-          this.$emit("onLongTap", args);
-        }
-      }, 500);
-    },
-    processEnd(e, node) {
-      // ロングタップでのモーダル表示時にモーダルが選択されるのを防ぐ
-      if (e.cancelable) {
-        e.preventDefault();
-      }
-
-      // タップ前から選択済みでドラッグ状態でない
-      const should_emit = !this.select_new_item && !this.long_tap;
-      if (should_emit) {
-        const args = this.isSelected(node)
-          ? {
-            node_id: null,
-            node_ids: this.selected_node_ids.filter((n) => n !== node.id),
-          }
-          : {
-            node_id: node.id,
-            node_ids: [node.id, ...this.selected_node_ids],
-          };
-        if (!this.allow("onTap", args)) {
-          return;
-        }
-        this.$emit("onTap", args);
-      }
-
-      if (this.isMoved(e)) {
-        const args = { node_ids: this.selected_node_ids };
-        this.$emit("onMoveEnd", args);
-      }
-
-      this.tap = false;
-      this.long_tap = false;
-      this.select_new_item = false;
-      this.tap_position = [e.clientX, e.clientY];
-      this.prev_position = [e.clientX, e.clientY];
-    },
-    processMove(e, on_denied) {
-      if (this.isMoving(e)) {
-        const dx = e.clientX - this.prev_position[0];
-        const dy = e.clientY - this.prev_position[1];
-        this.prev_position = [e.clientX, e.clientY];
-
-        const args = { dx, dy: -dy, node_ids: this.selected_node_ids };
-        if (!this.allow("onMove", args)) {
-          return on_denied();
-        }
-        this.$emit("onMove", args);
+        this.tap_record = tap_record
+        this.$emit("onMove", diff);
       }
     },
-
-    /**
-     * タッチ開始イベントの座標と比較する
-     */
-    isMoved({ clientX, clientY }) {
+    isDragging({ event }) {
       return (
-        this.tap_position[0] !== clientX || this.tap_position[1] !== clientY
-      );
-    },
-    /**
-     * 前回タッチイベントの座標と比較する
-     */
-    isMoving({ clientX, clientY }) {
-      return (
-        this.prev_position[0] !== clientX || this.prev_position[1] !== clientY
+        this.tap_record.event.clientX !== event.clientX || this.tap_record.event.clientY !== event.clientY
       );
     },
   }

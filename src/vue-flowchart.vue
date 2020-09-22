@@ -3,8 +3,10 @@
     id="svg-box"
     :viewBox="viewBox"
     xmlns="http://www.w3.org/2000/svg"
-    @touchstart.stop.prevent="handleBackgroundClick"
-    @mousedown.stop="handleBackgroundClick"
+    @touchstart.stop.prevent="e => handleTouchStart(e, null)"
+    @mousedown.stop="e => handleMouseDown(e, null)"
+    @touchend.stop.prevent="e => handleTouchEnd(e, null)"
+    @mouseup.stop="e => handleMouseUp(e, null)"
     :transform="transform"
   >
     <slot name="grid">
@@ -70,7 +72,7 @@
           @touchstart.stop.prevent="e => handleTouchStart(e, node)"
           @mousedown.stop="e => handleMouseDown(e, node)"
           @touchend.stop.prevent="e => handleTouchEnd(e, node)"
-          @mouseup="e => handleMouseUp(e, node)"
+          @mouseup.stop="e => handleMouseUp(e, node)"
         >
           <Node :node="node" :options="computedOptions" :is_selected="isSelected(node)" />
         </g>
@@ -98,12 +100,7 @@
 import Node from "./components/vue-flowchart-node.vue";
 import Link from "./components/vue-flowchart-link.vue";
 import NodeHandling from "./mixin";
-import {
-  DEFAULT_FLOW,
-  DEFAULT_NODE,
-  DEFAULT_OPTIONS,
-  DEFAULT_MANAGERS,
-} from "./const";
+import { DEFAULT_FLOW, DEFAULT_NODE, DEFAULT_OPTIONS } from "./const";
 export default {
   name: "VueFlowchart",
   components: { Node, Link },
@@ -124,13 +121,11 @@ export default {
         return [];
       },
     },
-    options: {
-      type: Object,
-      default() {
-        return {};
-      },
+    draggable: {
+      type: Boolean,
+      default: false,
     },
-    managers: {
+    options: {
       type: Object,
       default() {
         return {};
@@ -138,6 +133,15 @@ export default {
     },
   },
 
+  watch: {
+    draggable(val) {
+      if (val) {
+        this.addMouseMove();
+      } else {
+        this.removeMousemove();
+      }
+    },
+  },
   methods: {
     /**
      * 内容に対して高さが足りなければ内容から算出した高さにする
@@ -169,11 +173,8 @@ export default {
         this.computedOptions.node.max_width
       );
     },
-    /**
-     * 座標系を上下反転する
-     */
     calculateY(node) {
-      return this.computedOptions.canvas.height - node.position[1];
+      return node.position[1];
     },
     isSelected(node) {
       return this.selected_node_ids.includes(node.id);
@@ -201,9 +202,6 @@ export default {
     },
     computedOptions() {
       return Object.assign({}, DEFAULT_OPTIONS, this.options);
-    },
-    computedManagers() {
-      return Object.assign({}, DEFAULT_MANAGERS, this.managers);
     },
     computedNodes() {
       return this.computedFlow.nodes
@@ -239,10 +237,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-#svg-box {
-  width: 100%;
-  height: 100%;
-}
-</style>

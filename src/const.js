@@ -33,10 +33,5 @@ const DEFAULT_OPTIONS = {
     border_width: 1.5,
   },
 };
-const DEFAULT_MANAGERS = {
-  onTap({ node_id, node_ids }) { return true },
-  onLongTap({ node_id, node_ids }) { return true },
-  onMove({ dx, dy, node_ids }) { return true },
-};
 
-export { DEFAULT_FLOW, DEFAULT_NODE, DEFAULT_BODY, DEFAULT_OPTIONS, DEFAULT_MANAGERS };
+export { DEFAULT_FLOW, DEFAULT_NODE, DEFAULT_BODY, DEFAULT_OPTIONS };
