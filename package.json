@@ -11,7 +11,8 @@
     "build": "npm run build:umd & npm run build:es & npm run build:unpkg",
     "build:umd": "rollup --config build/rollup.config.js --format umd --file dist/vue-flowchart.umd.js",
     "build:es": "rollup --config build/rollup.config.js --format es --file dist/vue-flowchart.esm.js",
-    "build:unpkg": "rollup --config build/rollup.config.js --format iife --file dist/vue-flowchart.min.js"
+    "build:unpkg": "rollup --config build/rollup.config.js --format iife --file dist/vue-flowchart.min.js",
+    "release": "npm run build & npm publish ./"
   },
   "dependencies": {},
   "devDependencies": {
