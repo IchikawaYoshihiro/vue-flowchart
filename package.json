@@ -1,6 +1,6 @@
 {
   "name": "@yosichikaw/vue-flowchart",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "main": "dist/vue-flowchart.umd.js",
   "module": "dist/vue-flowchart.esm.js",
   "unpkg": "dist/vue-flowchart.min.js",
