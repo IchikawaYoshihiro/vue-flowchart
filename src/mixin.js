@@ -1,131 +1,163 @@
 export default {
   data() {
     return {
-      tap_record: null,
+      touches: [],
+      touched_at: null,   // for double touch
+      touch_timer: null,  // for long touch
     };
   },
   methods: {
-    // tap control
+    addMoveListener() {
+      if (this.movable) {
+        this.$el.addEventListener('touchmove', this.handleTouchMove, { passive: false });
+        this.$el.addEventListener('mousemove', this.handleMouseMove, { passive: true });
+      }
+    },
+    removeMoveListener() {
+      this.$el.removeEventListener('touchmove', this.handleTouchMove);
+      this.$el.removeEventListener('mousemove', this.handleMouseMove);
+    },
+    handleTouchStart(event, node) {
+      this.processStart([...event.touches], node)
+    },
     handleMouseDown(event, node) {
-      this.processStart(event, node);
+      this.processStart([event], node)
     },
-    handleTouchStart(e, node) {
-      this.processStart(e.touches[0], node);
-    },
-    processStart(event, node) {
-      if (event.cancelable) {
-        event.preventDefault();
+    processStart(touches, node) {
+      const touched_at = new Date();
+      const node_id = node ? node.id : null;
+
+      this.addMoveListener();
+
+      if (this.touch_timer) {
+        clearTimeout(this.touch_timer);
       }
 
-      const tap_record = { event, node, tapped_at: new Date(), is_double: false };
-      if (this.tap_record) {
-        tap_record.is_double = !this.tap_record.is_drag && !this.isMoved(tap_record) && this.isShortTime(tap_record);
-      }
-      this.tap_record = tap_record;
-    },
-    handleMouseUp(event, node) {
-      this.processEnd(event, node);
-    },
-    handleTouchEnd(e, node) {
-      this.processEnd(e.changedTouches[0], node);
-    },
-    processEnd(event, node) {
-      const tap_record = { event, node, tapped_at: new Date(), is_double: false };
-      if (this.isDifferentNode(tap_record)) {
+      if (this.isDoubleTouch(touches, touched_at)) {
+        this.$emit('onDoubleTouch', { node_id });
         return;
       }
 
-      if (this.isLongTap(tap_record)) {
-        return this.$emit('onLongTap', { node });
-      }
-      if (this.isDoubleTap(tap_record)) {
-        return this.$emit('onDoubleTap', { node });
-      }
-      return this.$emit('onTap', { node });
-    },
-    isDifferentNode(node) {
-      if (node && this.tap_record.node) {
-        return !this.tap_record.node.id === node.id;
-      }
-      return !this.tap_record.node === node;
-    },
-    isMoved({ event }) {
-      return Math.abs(this.tap_record.event.clientX - event.clientX) > 10
-        && Math.abs(this.tap_record.event.clientY - event.clientY) > 10;
-    },
-    isShortTime({ tapped_at }) {
-      if (this.tap_record) {
-        const time = tapped_at - this.tap_record.tapped_at;
-        return time <= 500;
-      }
-      return true;
-    },
-    isLongTap(tap_record) {
-      if (this.tap_record) {
-        // background
-        if (this.tap_record.node === null && tap_record.node === null) {
-          return !this.isMoved(tap_record) && !this.isShortTime(tap_record)
+      this.touch_timer = setTimeout(() => {
+        if (this.isLongTouch(touches)) {
+          this.$emit('onLongTouch', { node_id });
         }
-        // node
-        if (this.tap_record.node && tap_record.node) {
-          return this.tap_record.node.id && tap_record.node.id
-            && !this.isMoved(tap_record) && !this.isShortTime(tap_record);
-        }
-      }
-      return false;
+      }, 1000);
+
+      this.touches = touches;
+      this.touched_at = touched_at;
+      this.$emit('onTouch', { node_id });
     },
-    isDoubleTap(tap_record) {
-      if (this.tap_record) {
-        // background
-        if (this.tap_record.node === null && tap_record.node === null) {
-          return this.tap_record.is_double
-            && !this.isMoved(tap_record)
-            && this.isShortTime(tap_record);
-        }
-        // node
-        if (this.tap_record.node && tap_record.node) {
-          return this.tap_record.is_double
-            && !this.isMoved(tap_record)
-            && this.isShortTime(tap_record);
-        }
-      }
-      return false;
+    handleTouchEnd(event, node) {
+      this.processEnd([...event.touches], node);
     },
-    // drag control
-    addMouseMove() {
-      this.$el.addEventListener('mousemove', this.handleMouseMove)
-      this.$el.addEventListener('touchmove', this.handleTouchMove)
+    handleMouseUp(event, node) {
+      this.processEnd([], node);
     },
-    removeMousemove() {
-      this.$el.removeEventListener('mousemove', this.handleMouseMove)
-      this.$el.removeEventListener('touchmove', this.handleTouchMove)
-    },
-    handleMouseMove(e) {
-      this.processMove(e);
-    },
-    handleTouchMove(e) {
-      e.preventDefault();
-      this.processMove(e.touches[0]);
-    },
-    processMove(event) {
-      const tap_record = { event, node: null, tapped_at: new Date(), is_double: false, is_drag: true };
-      if (!this.tap_record) {
-        this.tap_record = tap_record
+
+    processEnd(touches, node) {
+      if (this.touch_timer) {
+        clearTimeout(this.touch_timer);
       }
 
-      if (this.isDragging(tap_record)) {
-        const diff = {
-          dx: tap_record.event.clientX - this.tap_record.event.clientX,
-          dy: tap_record.event.clientY - this.tap_record.event.clientY
-        };
-        this.tap_record = tap_record
-        this.$emit("onMove", diff);
+      if (touches.length === 0) {
+        this.removeMoveListener();
+        const node_id = node ? node.id : null;
+        this.$emit('onTouchEnd', { node_id });
       }
     },
-    isDragging({ event }) {
-      return (
-        this.tap_record.event.clientX !== event.clientX || this.tap_record.event.clientY !== event.clientY
+
+    handleTouchMove(event) {
+      event.preventDefault();
+      this.processMove([...event.touches]);
+    },
+    handleMouseMove(event) {
+      this.processMove([event]);
+    },
+    processMove(touches) {
+      if (this.isDrag(touches)) {
+        const { dx, dy } = this.calcDrag(touches);
+
+        this.touches = touches;
+        this.$emit('onDrag', { dx, dy });
+        this.updateNodePosition({ dx, dy })
+      }
+      if (this.isPinch(touches)) {
+        const { dr, dh, dv, dl } = this.calcPinch(touches)
+
+        this.touches = touches;
+        this.$emit('onPinch', { dr, dh, dv, dl });
+      }
+    },
+    updateNodePosition({ dx, dy }) {
+      this.flow.nodes = this.flow.nodes.map((n) =>
+        this.selected_node_ids.includes(n.id)
+          ? Object.assign({}, n, {
+            position: [n.position[0] + dx, n.position[1] + dy],
+          })
+          : n
       );
+    },
+    isDoubleTouch(touches, touched_at) {
+      if (this.touched_at && touched_at - this.touched_at < 500 && this.touches.length === 1 && touches.length === 1) {
+        const t0 = this.touches[0];
+        const t1 = touches[0];
+        return Math.abs(t0.clientX - t1.clientX) < 10 && Math.abs(t0.clientY - t1.clientY) < 10;
+      }
+      return false;
+    },
+    isLongTouch(touches) {
+      if (this.touches.length === 1 && touches.length === 1) {
+        const t0 = this.touches[0];
+        const t1 = touches[0];
+        return Math.abs(t0.clientX - t1.clientX) < 10 && Math.abs(t0.clientY - t1.clientY) < 10;
+      }
+      return false;
+    },
+    isDrag(touches) {
+      if (this.touches.length === 1 && touches.length === 1) {
+        const t0 = this.touches[0];
+        const t1 = touches[0];
+        return Math.abs(t0.clientX - t1.clientX) > 10 || Math.abs(t0.clientY - t1.clientY) > 10;
+      }
+      return false;
+    },
+    isPinch(touches) {
+      if (this.touches.length >= 2 && touches.length >= 2) {
+        const t00 = this.touches[0];
+        const t01 = touches[0];
+        const t10 = this.touches[1];
+        const t11 = touches[1];
+        return Math.abs(Math.abs(t00.clientX - t10.clientX) - Math.abs(t01.clientX - t11.clientX)) > 10
+          || Math.abs(Math.abs(t00.clientY - t10.clientY) - Math.abs(t01.clientY - t11.clientY)) > 10
+      }
+      return false;
+    },
+    calcDrag(touches) {
+      const dx = touches[0].clientX - this.touches[0].clientX;
+      const dy = touches[0].clientY - this.touches[0].clientY;
+
+      return { dx, dy };
+    },
+    calcPinch(touches) {
+      const w1 = this.touches[0].clientX - this.touches[1].clientX;
+      const h1 = this.touches[0].clientY - this.touches[1].clientY;
+      const w2 = touches[0].clientX - touches[1].clientX;
+      const h2 = touches[0].clientY - touches[1].clientY;
+
+      // rotate
+      const r1 = Math.abs(Math.atan(h1 / w1));
+      const r2 = Math.abs(Math.atan(h2 / w2));
+      const dr = (r2 - r1) * 180 / Math.PI;
+      // horizontal
+      const dh = Math.abs(h2) - Math.abs(h1);
+      // vertical
+      const dv = Math.abs(w2) - Math.abs(w1);
+
+      // length
+      const dl = Math.sqrt(w2 ** 2 + h2 ** 2) - Math.sqrt(w1 ** 2 + h1 ** 2);
+
+      return { dr, dh, dv, dl }
     },
   }
 }

@@ -3,10 +3,10 @@
     id="svg-box"
     :viewBox="viewBox"
     xmlns="http://www.w3.org/2000/svg"
-    @touchstart.stop.prevent="e => handleTouchStart(e, null)"
-    @mousedown.stop="e => handleMouseDown(e, null)"
-    @touchend.stop.prevent="e => handleTouchEnd(e, null)"
-    @mouseup.stop="e => handleMouseUp(e, null)"
+    @touchstart.stop.prevent="(e) => handleTouchStart(e, null)"
+    @mousedown.stop="(e) => handleMouseDown(e, null)"
+    @touchend.stop.prevent="(e) => handleTouchEnd(e, null)"
+    @mouseup.stop="(e) => handleMouseUp(e, null)"
     :transform="transform"
   >
     <slot name="grid">
@@ -69,12 +69,16 @@
         <g
           v-for="node in computedNodes"
           :key="node.id"
-          @touchstart.stop.prevent="e => handleTouchStart(e, node)"
-          @mousedown.stop="e => handleMouseDown(e, node)"
-          @touchend.stop.prevent="e => handleTouchEnd(e, node)"
-          @mouseup.stop="e => handleMouseUp(e, node)"
+          @touchstart.stop.prevent="(e) => handleTouchStart(e, node)"
+          @mousedown.stop="(e) => handleMouseDown(e, node)"
+          @touchend.stop.prevent="(e) => handleTouchEnd(e, node)"
+          @mouseup.stop="(e) => handleMouseUp(e, node)"
         >
-          <Node :node="node" :options="computedOptions" :is_selected="isSelected(node)" />
+          <Node
+            :node="node"
+            :options="computedOptions"
+            :is_selected="isSelected(node)"
+          />
         </g>
       </g>
     </g>
@@ -121,7 +125,7 @@ export default {
         return [];
       },
     },
-    draggable: {
+    movable: {
       type: Boolean,
       default: false,
     },
@@ -130,16 +134,6 @@ export default {
       default() {
         return {};
       },
-    },
-  },
-
-  watch: {
-    draggable(val) {
-      if (val) {
-        this.addMouseMove();
-      } else {
-        this.removeMousemove();
-      }
     },
   },
   methods: {
