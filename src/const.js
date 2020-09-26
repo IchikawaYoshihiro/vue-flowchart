@@ -9,8 +9,7 @@ const DEFAULT_NODE = {
 const DEFAULT_BODY = '';
 const DEFAULT_OPTIONS = {
   canvas: {
-    width: 960,
-    height: 720,
+    scale: 0.75,
     grid: 10,
     grid_color: "#bbb",
   },

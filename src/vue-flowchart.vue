@@ -1,103 +1,89 @@
 <template>
-  <svg
-    id="svg-box"
-    :viewBox="viewBox"
-    xmlns="http://www.w3.org/2000/svg"
-    @touchstart.stop.prevent="(e) => handleTouchStart(e, null)"
-    @mousedown.stop="(e) => handleMouseDown(e, null)"
-    @touchend.stop.prevent="(e) => handleTouchEnd(e, null)"
-    @mouseup.stop="(e) => handleMouseUp(e, null)"
-    :transform="transform"
-  >
-    <slot name="grid">
-      <defs>
-        <pattern id="grid" x="0" y="0" :width="gridScaleX" :height="gridScaleY">
-          <line
-            x1="0"
-            y1="0"
-            :x2="computedOptions.canvas.grid"
-            y2="0"
-            :stroke="computedOptions.canvas.grid_color"
-            stroke-width="1"
-          />
-          <line
-            x1="0"
-            y1="0"
-            x2="0"
-            :y2="computedOptions.canvas.grid"
-            :stroke="computedOptions.canvas.grid_color"
-            stroke-width="1"
-          />
-        </pattern>
-      </defs>
-      <g class="grid">
-        <rect
-          fill="url(#grid)"
-          x="0"
-          y="0"
-          :width="computedOptions.canvas.width"
-          :height="computedOptions.canvas.height"
-        />
-        <line
-          :x1="computedOptions.canvas.width"
-          :y1="computedOptions.canvas.height"
-          x2="0"
-          :y2="computedOptions.canvas.height"
-          :stroke="computedOptions.canvas.grid_color"
-          stroke-width="1"
-        />
-        <line
-          :x1="computedOptions.canvas.width"
-          y1="0"
-          :x2="computedOptions.canvas.width"
-          :y2="computedOptions.canvas.height"
-          :stroke="computedOptions.canvas.grid_color"
-          stroke-width="1"
-        />
-      </g>
-    </slot>
-    <g class="flowchart" filter="url(#shadow)">
-      <g class="links">
-        <Link
-          v-for="(link, index) in computedLinks"
-          :key="index"
-          :link="link"
-          :options="computedOptions"
-        />
-      </g>
-      <g class="nodes">
-        <g
-          v-for="node in computedNodes"
-          :key="node.id"
-          @touchstart.stop.prevent="(e) => handleTouchStart(e, node)"
-          @mousedown.stop="(e) => handleMouseDown(e, node)"
-          @touchend.stop.prevent="(e) => handleTouchEnd(e, node)"
-          @mouseup.stop="(e) => handleMouseUp(e, node)"
-        >
-          <Node
-            :node="node"
-            :options="computedOptions"
-            :is_selected="isSelected(node)"
+  <div class="vue-flowchart">
+    <svg
+      class="vue-flowchart-svg"
+      xmlns="http://www.w3.org/2000/svg"
+      ref="svg"
+      :height="bgHeight"
+      :width="bgWidth"
+      :viewBox="bgViewBox"
+      @touchstart.stop.prevent="(e) => handleTouchStart(e, null)"
+      @mousedown.stop="(e) => handleMouseDown(e, null)"
+      @touchend.stop.prevent="(e) => handleTouchEnd(e, null)"
+      @mouseup.stop="(e) => handleMouseUp(e, null)"
+    >
+      <slot name="grid">
+        <defs>
+          <pattern
+            id="grid"
+            x="0"
+            y="0"
+            :width="gridScaleX"
+            :height="gridScaleY"
+          >
+            <polyline
+              :points="gridPoints"
+              :stroke="computedOptions.canvas.grid_color"
+              stroke-width="1"
+              fill="none"
+            />
+          </pattern>
+        </defs>
+        <g class="grid" :transform="gridTransform">
+          <rect
+            class="vue-flowchart-svg-grid"
+            fill="url(#grid)"
+            x="0"
+            y="0"
+            :width="gridWidth"
+            :height="gridHeight"
           />
         </g>
+      </slot>
+      <g
+        class="vue-flowchart-svg-node-and-links"
+        filter="url(#shadow)"
+        :transform="bgTransform"
+      >
+        <g class="vue-flowchart-svg-links">
+          <g v-for="(link, index) in computedLinks" :key="index">
+            <Link :link="link" :options="computedOptions" />
+          </g>
+        </g>
+        <g class="vue-flowchart-svg-links">
+          <g
+            v-for="node in computedNodes"
+            :key="node.id"
+            @touchstart.stop.prevent="(e) => handleTouchStart(e, node)"
+            @mousedown.stop="(e) => handleMouseDown(e, node)"
+            @touchend.stop.prevent="(e) => handleTouchEnd(e, node)"
+            @mouseup.stop="(e) => handleMouseUp(e, node)"
+          >
+            <Node
+              :node="node"
+              :options="computedOptions"
+              :is_selected="isSelected(node)"
+            />
+          </g>
+        </g>
       </g>
-    </g>
-    <slot name="filter">
-      <defs>
-        <filter id="shadow">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
-          <feComponentTransfer in="blur" result="blur_opacity">
-            <feFuncA type="linear" slope="0.25" />
-          </feComponentTransfer>
-          <feOffset in="linear" dx="1" dy="1" result="offset" />
-          <feMerge>
-            <feMergeNode in="offset" />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-      </defs>
-    </slot>
-  </svg>
+      <slot name="filter">
+        <defs>
+          <filter id="shadow">
+            <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
+            <feComponentTransfer in="blur" result="blur_opacity">
+              <feFuncA type="linear" slope="0.25" />
+            </feComponentTransfer>
+            <feOffset in="linear" dx="1" dy="1" result="offset" />
+            <feMerge>
+              <feMergeNode in="offset" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
+      </slot>
+    </svg>
+  </div>
 </template>
 
 <script>
@@ -128,6 +114,10 @@ export default {
     movable: {
       type: Boolean,
       default: false,
+    },
+    scale: {
+      type: Number,
+      default: 0.75,
     },
     options: {
       type: Object,
@@ -175,22 +165,6 @@ export default {
     },
   },
   computed: {
-    transform() {
-      return "";
-    },
-    viewBox() {
-      return `0 0 ${this.computedOptions.canvas.width} ${this.computedOptions.canvas.height}`;
-    },
-    gridScaleX() {
-      return (
-        this.computedOptions.canvas.grid / this.computedOptions.canvas.width
-      );
-    },
-    gridScaleY() {
-      return (
-        this.computedOptions.canvas.grid / this.computedOptions.canvas.height
-      );
-    },
     computedFlow() {
       return Object.assign({}, DEFAULT_FLOW, this.flow);
     },
@@ -231,3 +205,9 @@ export default {
   },
 };
 </script>
+<style lang="scss" scoped>
+.vue-flowchart {
+  overflow: hidden;
+  border: solid 1px #000;
+}
+</style>
