@@ -1,6 +1,4 @@
-const DOUBLE_TAP_THRESHOLD_MSEC = 500;
-const LONG_TAP_THRESHOLD_MSEC = 1000;
-const DISTANCE_THRESHOLD_PX = 10;
+import { DOUBLE_TAP_THRESHOLD_MSEC, LONG_TAP_THRESHOLD_MSEC, MOVE_THRESHOLD_PX } from "./const";
 
 export default {
   data() {
@@ -9,8 +7,8 @@ export default {
       touch_node: null,   // touch target is node or background
       touched_at: null,   // for double touch
       touch_timer: null,  // for long touch
-      offset: [0, 0],
-      render_area: [100, 100]
+      offset: { x: 0, y: 0 },
+      render_area: { w: 100, h: 100 },
     };
   },
   methods: {
@@ -90,7 +88,10 @@ export default {
     },
     processMove(touches) {
       if (this.isDrag(touches)) {
-        const { dx, dy } = this.calcDrag(touches);
+        if (!this.shouldMove(touches[0])) {
+          return;
+        }
+        const { dx, dy } = this.calcDrag(touches[0]);
 
         this.touches = touches;
         if (this.touch_node) {
@@ -100,19 +101,25 @@ export default {
           this.$emit('onBackgroundDrag', { dx, dy });
           this.updateBackgroundPosition({ dx, dy })
         }
+        return;
       }
       if (this.isPinch(touches)) {
-        const { dr, dh, dv, dl } = this.calcPinch(touches)
+        const { dr, dh, dv, dl, cx, cy } = this.calcPinch(touches)
 
         this.touches = touches;
-        this.$emit('onPinch', { dr, dh, dv, dl });
-        this.updateScale(dl);
+        this.$emit('onPinch', { dr, dh, dv, dl, cx, cy });
+        this.updateScale({ dl, cx, cy });
       }
     },
     handleWheel(event) {
       event.preventDefault();
+
+      if (this.touch_timer) {
+        clearTimeout(this.touch_timer);
+      }
+
       if (event.deltaY) {
-        this.updateScale(-event.deltaY);
+        this.updateScale({ dl: -event.deltaY, cx: event.clientX, cy: event.clientY });
       }
     },
 
@@ -121,26 +128,37 @@ export default {
       this.flow.nodes = this.flow.nodes.map((n) =>
         this.selected_node_ids.includes(n.id)
           ? Object.assign({}, n, {
-            position: [
-              Math.round((n.position[0] + real_dx) / this.computedOptions.canvas.grid) * this.computedOptions.canvas.grid,
-              Math.round((n.position[1] + real_dy) / this.computedOptions.canvas.grid) * this.computedOptions.canvas.grid
-            ],
+            x: Math.round((n.x + real_dx) / this.computedOptions.canvas.grid) * this.computedOptions.canvas.grid,
+            y: Math.round((n.y + real_dy) / this.computedOptions.canvas.grid) * this.computedOptions.canvas.grid
           })
           : n
       );
     },
     updateBackgroundPosition({ dx, dy }) {
-      this.offset = [this.offset[0] + dx, this.offset[1] + dy];
+      this.offset.x += dx;
+      this.offset.y += dy;
     },
-    updateScale(dl) {
-      this.computedOptions.canvas.scale = this.computedOptions.canvas.scale + dl / this.render_area[0];
+    updateScale({ dl, cx, cy }) {
+      const old_scale = this.computedOptions.canvas.scale;
+      const new_scale = old_scale + dl / this.render_area.w;
+      if (new_scale <= 0.2 || 5 < new_scale) {
+        return;
+      }
+
+      this.offset.x = this.offset.x - (new_scale - old_scale) * cx;
+      this.offset.y = this.offset.y - (new_scale - old_scale) * cy;
+      this.computedOptions.canvas.scale = new_scale;
+    },
+    updateRenderArea() {
+      this.render_area.w = this.$el.offsetWidth;
+      this.render_area.h = this.$el.offsetHeight;
     },
     isDoubleTouch(touches, touched_at) {
       if (this.touched_at && touched_at - this.touched_at < DOUBLE_TAP_THRESHOLD_MSEC && this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];
-        return Math.abs(t0.clientX - t1.clientX) < DISTANCE_THRESHOLD_PX
-          && Math.abs(t0.clientY - t1.clientY) < DISTANCE_THRESHOLD_PX;
+        return Math.abs(t0.clientX - t1.clientX) < MOVE_THRESHOLD_PX
+          && Math.abs(t0.clientY - t1.clientY) < MOVE_THRESHOLD_PX;
       }
       return false;
     },
@@ -148,8 +166,8 @@ export default {
       if (this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];
-        return Math.abs(t0.clientX - t1.clientX) < DISTANCE_THRESHOLD_PX
-          && Math.abs(t0.clientY - t1.clientY) < DISTANCE_THRESHOLD_PX;
+        return Math.abs(t0.clientX - t1.clientX) < MOVE_THRESHOLD_PX
+          && Math.abs(t0.clientY - t1.clientY) < MOVE_THRESHOLD_PX;
       }
       return false;
     },
@@ -157,10 +175,16 @@ export default {
       if (this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];
-        return Math.abs(t0.clientX - t1.clientX) > DISTANCE_THRESHOLD_PX
-          || Math.abs(t0.clientY - t1.clientY) > DISTANCE_THRESHOLD_PX;
+        return Math.abs(t0.clientX - t1.clientX) > MOVE_THRESHOLD_PX
+          || Math.abs(t0.clientY - t1.clientY) > MOVE_THRESHOLD_PX;
       }
       return false;
+    },
+    shouldMove(touch) {
+      const t0 = this.touches[0];
+      const t1 = touch;
+      return Math.abs(t0.clientX - t1.clientX) > this.computedOptions.canvas.grid
+        || Math.abs(t0.clientY - t1.clientY) > this.computedOptions.canvas.grid;
     },
     isPinch(touches) {
       if (this.touches.length >= 2 && touches.length >= 2) {
@@ -168,22 +192,26 @@ export default {
         const t01 = touches[0];
         const t10 = this.touches[1];
         const t11 = touches[1];
-        return Math.abs(Math.abs(t00.clientX - t10.clientX) - Math.abs(t01.clientX - t11.clientX)) > DISTANCE_THRESHOLD_PX
-          || Math.abs(Math.abs(t00.clientY - t10.clientY) - Math.abs(t01.clientY - t11.clientY)) > DISTANCE_THRESHOLD_PX
+        return Math.abs(Math.abs(t00.clientX - t10.clientX) - Math.abs(t01.clientX - t11.clientX)) > MOVE_THRESHOLD_PX
+          || Math.abs(Math.abs(t00.clientY - t10.clientY) - Math.abs(t01.clientY - t11.clientY)) > MOVE_THRESHOLD_PX
       }
       return false;
     },
-    calcDrag(touches) {
-      const dx = touches[0].clientX - this.touches[0].clientX;
-      const dy = touches[0].clientY - this.touches[0].clientY;
+    calcDrag(touch) {
+      const dx = touch.clientX - this.touches[0].clientX;
+      const dy = touch.clientY - this.touches[0].clientY;
 
       return { dx, dy };
     },
     calcPinch(touches) {
+      // distance
       const w1 = this.touches[0].clientX - this.touches[1].clientX;
       const h1 = this.touches[0].clientY - this.touches[1].clientY;
       const w2 = touches[0].clientX - touches[1].clientX;
       const h2 = touches[0].clientY - touches[1].clientY;
+      // center
+      const cx = (touches[0].clientX + touches[1].clientX) / 2;
+      const cy = (touches[0].clientY + touches[1].clientY) / 2;
 
       // rotate
       const r1 = Math.abs(Math.atan(h1 / w1));
@@ -197,55 +225,48 @@ export default {
       // length
       const dl = Math.sqrt(w2 ** 2 + h2 ** 2) - Math.sqrt(w1 ** 2 + h1 ** 2);
 
-      return { dr, dh, dv, dl }
+      return { dr, dh, dv, dl, cx, cy }
     },
-    updateRenderArea() {
-      this.render_area = [
-        this.$el.clientWidth,
-        this.$el.clientHeight
-      ];
-    }
   },
   computed: {
     boxStyle() {
-      return `max-width: ${this.render_area[0]}px; margin: auto;`;
+      return `max-width: ${this.render_area.w}px; margin: auto;`;
     },
-    bgTransform() {
-      return `translate(${this.offset[0]}, ${this.offset[1]}) scale(${this.computedOptions.canvas.scale})`;
+    transform() {
+      return `scale(${this.computedOptions.canvas.scale}) translate(${this.offset.x}, ${this.offset.y}) `;
     },
-    bgWidth() {
-      return this.render_area[0];
-    },
-    bgHeight() {
-      return this.render_area[1];
-    },
-    bgViewBox() {
-      return `0 0 ${this.render_area[0]} ${this.render_area[1]}`;
+    viewbox() {
+      return `0 0 ${this.render_area.w} ${this.render_area.h}`;
     },
     gridTransform() {
-      const x = (this.offset[0] % this.computedOptions.canvas.grid) - this.computedOptions.canvas.grid;
-      const y = (this.offset[1] % this.computedOptions.canvas.grid) - this.computedOptions.canvas.grid;
-      return `translate(${x}, ${y}) scale(${this.computedOptions.canvas.scale})`;
+      const x = (this.offset.x % this.computedOptions.canvas.grid) - this.computedOptions.canvas.grid;
+      const y = (this.offset.y % this.computedOptions.canvas.grid) - this.computedOptions.canvas.grid;
+      return `scale(${this.computedOptions.canvas.scale}) translate(${x}, ${y}) `;
+    },
+    gridSize() {
+      return this.computedOptions.canvas.grid * this.computedOptions.canvas.scale;
     },
     gridPoints() {
-      return `0, ${this.gridHeight} 0, 0 ${this.gridWidth}, 0`
+      return `0, ${this.computedOptions.canvas.grid} 0, 0 ${this.computedOptions.canvas.grid}, 0`
     },
-    gridWidth() {
-      return (this.render_area[0] + this.computedOptions.canvas.grid * 2) / this.computedOptions.canvas.scale;
+    gridCount() {
+      return {
+        x: 2 + Math.round(this.render_area.w / this.gridSize),
+        y: 2 + Math.round(this.render_area.h / this.gridSize)
+      };
     },
-    gridHeight() {
-      return (this.render_area[1] + this.computedOptions.canvas.grid * 2) / this.computedOptions.canvas.scale;
+    gridArea() {
+      return {
+        w: this.gridCount.x * this.computedOptions.canvas.grid,
+        h: this.gridCount.y * this.computedOptions.canvas.grid,
+      }
     },
-    gridScaleX() {
-      return (
-        this.computedOptions.canvas.grid * this.computedOptions.canvas.scale / this.render_area[0]
-      );
-    },
-    gridScaleY() {
-      return (
-        this.computedOptions.canvas.grid * this.computedOptions.canvas.scale / this.render_area[1]
-      );
-    },
+    gridScale() {
+      return {
+        x: 1 / this.gridCount.x,
+        y: 1 / this.gridCount.y
+      }
+    }
   },
   mounted() {
     this.$el.addEventListener('resize', this.updateRenderArea);

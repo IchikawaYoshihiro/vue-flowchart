@@ -1,25 +1,26 @@
 <template>
   <line
-    class="link"
-    :x1="link.from[0]"
-    :y1="link.from[1]"
-    :x2="link.to[0]"
-    :y2="link.to[1]"
+    class="vue-flowchart-svg-nodes-connections-connection"
+    :x1="connection.fromX"
+    :y1="connection.fromY"
+    :x2="connection.toX"
+    :y2="connection.toY"
     :stroke-width="options.link.border_width"
     :stroke="options.link.line_color"
   />
 </template>
 <script>
 export default {
-  name: "VueFlowchartLink",
+  name: "VueFlowchartConnection",
   props: {
-    link: {
+    connection: {
       type: Object,
       default() {
         return {
-          from: [0, 0],
-          to: [0, 0],
-          via: [],
+          fromX: 0,
+          fromY: 0,
+          toX: 0,
+          toY: 0,
         };
       },
     },

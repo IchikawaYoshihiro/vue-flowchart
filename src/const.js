@@ -3,8 +3,15 @@ const DEFAULT_NODE = {
   id: null,
   title: "",
   bodies: [],
-  position: [0, 0],
-  size: [100, 80],
+  x: 0,
+  y: 0,
+  w: 100,
+  h: 80,
+};
+const DEFAULT_LINK = {
+  from: null,
+  index: null,
+  to: null,
 };
 const DEFAULT_BODY = '';
 const DEFAULT_OPTIONS = {
@@ -20,6 +27,10 @@ const DEFAULT_OPTIONS = {
       title: 16,
       body: 12,
     },
+    default_text: {
+      title: "No title",
+      body: "No message",
+    },
     text_color: {
       title: "#111",
       body: "#000",
@@ -30,7 +41,19 @@ const DEFAULT_OPTIONS = {
   link: {
     line_color: "#40b883",
     border_width: 1.5,
+    type: 'line'
   },
 };
-
-export { DEFAULT_FLOW, DEFAULT_NODE, DEFAULT_BODY, DEFAULT_OPTIONS };
+const DOUBLE_TAP_THRESHOLD_MSEC = 500;
+const LONG_TAP_THRESHOLD_MSEC = 500;
+const MOVE_THRESHOLD_PX = 10;
+export {
+  DEFAULT_FLOW,
+  DEFAULT_NODE,
+  DEFAULT_LINK,
+  DEFAULT_BODY,
+  DEFAULT_OPTIONS,
+  DOUBLE_TAP_THRESHOLD_MSEC,
+  LONG_TAP_THRESHOLD_MSEC,
+  MOVE_THRESHOLD_PX
+};
