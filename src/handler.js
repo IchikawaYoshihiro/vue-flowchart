@@ -1,5 +1,3 @@
-import { DOUBLE_TAP_THRESHOLD_MSEC, LONG_TAP_THRESHOLD_MSEC, MOVE_THRESHOLD_PX } from "./const";
-
 export default {
   data() {
     return {
@@ -40,7 +38,7 @@ export default {
           this.$emit('onLongTouch', { node_id });
           this.removeMoveListener();
         }
-      }, LONG_TAP_THRESHOLD_MSEC);
+      }, this.option_control_detect_long_tap_msec);
 
       this.touches = touches;
       this.touched_at = touched_at;
@@ -124,12 +122,12 @@ export default {
     },
 
     updateNodePosition({ dx, dy }) {
-      const [real_dx, real_dy] = [dx / this.computedOptions.canvas.scale, dy / this.computedOptions.canvas.scale];
+      const [real_dx, real_dy] = [dx / this.option_canvas_scale, dy / this.option_canvas_scale];
       this.flow.nodes = this.flow.nodes.map((n) =>
         this.selected_node_ids.includes(n.id)
           ? Object.assign({}, n, {
-            x: Math.round((n.x + real_dx) / this.computedOptions.canvas.grid) * this.computedOptions.canvas.grid,
-            y: Math.round((n.y + real_dy) / this.computedOptions.canvas.grid) * this.computedOptions.canvas.grid
+            x: Math.round((n.x + real_dx) / this.option_canvas_grid) * this.option_canvas_grid,
+            y: Math.round((n.y + real_dy) / this.option_canvas_grid) * this.option_canvas_grid
           })
           : n
       );
@@ -139,7 +137,7 @@ export default {
       this.offset.y += dy;
     },
     updateScale({ dl, cx, cy }) {
-      const old_scale = this.computedOptions.canvas.scale;
+      const old_scale = this.option_canvas_scale;
       const new_scale = old_scale + dl / this.render_area.w;
       if (new_scale <= 0.2 || 5 < new_scale) {
         return;
@@ -147,18 +145,18 @@ export default {
 
       this.offset.x = this.offset.x - (new_scale - old_scale) * cx;
       this.offset.y = this.offset.y - (new_scale - old_scale) * cy;
-      this.computedOptions.canvas.scale = new_scale;
+      this.option_canvas_scale = new_scale;
     },
     updateRenderArea() {
       this.render_area.w = this.$el.offsetWidth;
       this.render_area.h = this.$el.offsetHeight;
     },
     isDoubleTouch(touches, touched_at) {
-      if (this.touched_at && touched_at - this.touched_at < DOUBLE_TAP_THRESHOLD_MSEC && this.touches.length === 1 && touches.length === 1) {
+      if (this.touched_at && touched_at - this.touched_at < this.option_control_detect_double_tap_msec && this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];
-        return Math.abs(t0.clientX - t1.clientX) < MOVE_THRESHOLD_PX
-          && Math.abs(t0.clientY - t1.clientY) < MOVE_THRESHOLD_PX;
+        return Math.abs(t0.clientX - t1.clientX) < this.option_control_detect_move_px
+          && Math.abs(t0.clientY - t1.clientY) < this.option_control_detect_move_px;
       }
       return false;
     },
@@ -166,8 +164,8 @@ export default {
       if (this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];
-        return Math.abs(t0.clientX - t1.clientX) < MOVE_THRESHOLD_PX
-          && Math.abs(t0.clientY - t1.clientY) < MOVE_THRESHOLD_PX;
+        return Math.abs(t0.clientX - t1.clientX) < this.option_control_detect_move_px
+          && Math.abs(t0.clientY - t1.clientY) < this.option_control_detect_move_px;
       }
       return false;
     },
@@ -175,16 +173,16 @@ export default {
       if (this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];
-        return Math.abs(t0.clientX - t1.clientX) > MOVE_THRESHOLD_PX
-          || Math.abs(t0.clientY - t1.clientY) > MOVE_THRESHOLD_PX;
+        return Math.abs(t0.clientX - t1.clientX) > this.option_control_detect_move_px
+          || Math.abs(t0.clientY - t1.clientY) > this.option_control_detect_move_px;
       }
       return false;
     },
     shouldMove(touch) {
       const t0 = this.touches[0];
       const t1 = touch;
-      return Math.abs(t0.clientX - t1.clientX) > this.computedOptions.canvas.grid
-        || Math.abs(t0.clientY - t1.clientY) > this.computedOptions.canvas.grid;
+      return Math.abs(t0.clientX - t1.clientX) > this.option_canvas_grid
+        || Math.abs(t0.clientY - t1.clientY) > this.option_canvas_grid;
     },
     isPinch(touches) {
       if (this.touches.length >= 2 && touches.length >= 2) {
@@ -192,8 +190,8 @@ export default {
         const t01 = touches[0];
         const t10 = this.touches[1];
         const t11 = touches[1];
-        return Math.abs(Math.abs(t00.clientX - t10.clientX) - Math.abs(t01.clientX - t11.clientX)) > MOVE_THRESHOLD_PX
-          || Math.abs(Math.abs(t00.clientY - t10.clientY) - Math.abs(t01.clientY - t11.clientY)) > MOVE_THRESHOLD_PX
+        return Math.abs(Math.abs(t00.clientX - t10.clientX) - Math.abs(t01.clientX - t11.clientX)) > this.option_control_detect_move_px
+          || Math.abs(Math.abs(t00.clientY - t10.clientY) - Math.abs(t01.clientY - t11.clientY)) > this.option_control_detect_move_px
       }
       return false;
     },
@@ -233,21 +231,21 @@ export default {
       return `max-width: ${this.render_area.w}px; margin: auto;`;
     },
     transform() {
-      return `scale(${this.computedOptions.canvas.scale}) translate(${this.offset.x}, ${this.offset.y}) `;
+      return `scale(${this.option_canvas_scale}) translate(${this.offset.x}, ${this.offset.y}) `;
     },
     viewbox() {
       return `0 0 ${this.render_area.w} ${this.render_area.h}`;
     },
     gridTransform() {
-      const x = (this.offset.x % this.computedOptions.canvas.grid) - this.computedOptions.canvas.grid;
-      const y = (this.offset.y % this.computedOptions.canvas.grid) - this.computedOptions.canvas.grid;
-      return `scale(${this.computedOptions.canvas.scale}) translate(${x}, ${y}) `;
+      const x = (this.offset.x % this.option_canvas_grid) - this.option_canvas_grid;
+      const y = (this.offset.y % this.option_canvas_grid) - this.option_canvas_grid;
+      return `scale(${this.option_canvas_scale}) translate(${x}, ${y}) `;
     },
     gridSize() {
-      return this.computedOptions.canvas.grid * this.computedOptions.canvas.scale;
+      return this.option_canvas_grid * this.option_canvas_scale;
     },
     gridPoints() {
-      return `0, ${this.computedOptions.canvas.grid} 0, 0 ${this.computedOptions.canvas.grid}, 0`
+      return `0, ${this.option_canvas_grid} 0, 0 ${this.option_canvas_grid}, 0`
     },
     gridCount() {
       return {
@@ -257,8 +255,8 @@ export default {
     },
     gridArea() {
       return {
-        w: this.gridCount.x * this.computedOptions.canvas.grid,
-        h: this.gridCount.y * this.computedOptions.canvas.grid,
+        w: this.gridCount.x * this.option_canvas_grid,
+        h: this.gridCount.y * this.option_canvas_grid,
       }
     },
     gridScale() {

@@ -23,7 +23,7 @@
           >
             <polyline
               :points="gridPoints"
-              :stroke="computedOptions.canvas.grid_color"
+              :stroke="option_canvas_grid_color"
               stroke-width="1"
               fill="none"
             />
@@ -56,7 +56,7 @@
           <Node
             :node="node"
             :connections="getConnections(node)"
-            :options="computedOptions"
+            :options="options"
             :is_selected="isSelected(node)"
           />
         </g>
@@ -82,17 +82,13 @@
 
 <script>
 import Node from "./components/vue-flowchart-node.vue";
-import NodeHandling from "./mixin";
-import {
-  DEFAULT_FLOW,
-  DEFAULT_NODE,
-  DEFAULT_LINK,
-  DEFAULT_OPTIONS,
-} from "./const";
+import handler from "./handler";
+import options from "./options";
+import { DEFAULT_NODE, DEFAULT_LINK } from "./const";
 export default {
   name: "VueFlowchart",
   components: { Node },
-  mixins: [NodeHandling],
+  mixins: [handler, options],
   props: {
     flow: {
       type: Object,
@@ -113,12 +109,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    options: {
-      type: Object,
-      default() {
-        return {};
-      },
-    },
   },
   methods: {
     /**
@@ -128,8 +118,8 @@ export default {
       const bodies = node.bodies.length ? node.bodies.length : 1;
 
       return (
-        this.computedOptions.node.font_size.body * bodies * 2 +
-        this.computedOptions.node.font_size.title * 2
+        this.option_node_font_size_body * bodies * 2 +
+        this.option_node_font_size_title * 2
       );
     },
     isSelected(node) {
@@ -148,17 +138,14 @@ export default {
   },
   computed: {
     computedFlow() {
-      return Object.assign({}, DEFAULT_FLOW, this.flow);
-    },
-    computedOptions() {
-      return Object.assign({}, DEFAULT_OPTIONS, this.options);
+      return Object.assign({ nodes: [], links: [] }, this.flow);
     },
     computedNodes() {
       return this.computedFlow.nodes
         .map((n) => Object.assign({}, DEFAULT_NODE, n))
         .map((n) =>
           Object.assign(n, {
-            w: this.computedOptions.node.max_width,
+            w: this.option_node_max_width,
             h: this.calculateHeight(n),
           })
         );

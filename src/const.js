@@ -1,4 +1,3 @@
-const DEFAULT_FLOW = { nodes: [], links: [] };
 const DEFAULT_NODE = {
   id: null,
   title: "",
@@ -13,7 +12,6 @@ const DEFAULT_LINK = {
   index: null,
   to: null,
 };
-const DEFAULT_BODY = '';
 const DEFAULT_OPTIONS = {
   canvas: {
     scale: 0.75,
@@ -21,8 +19,10 @@ const DEFAULT_OPTIONS = {
     grid_color: "#bbb",
   },
   node: {
-    border_width: 1.5,
     bgcolor: "#fff",
+    border_color: "#40b883",
+    border_width: 1.5,
+    max_width: 300,
     font_size: {
       title: 16,
       body: 12,
@@ -35,25 +35,20 @@ const DEFAULT_OPTIONS = {
       title: "#111",
       body: "#000",
     },
-    line_color: "#40b883",
-    max_width: 300,
   },
   link: {
-    line_color: "#40b883",
+    border_color: "#40b883",
     border_width: 1.5,
     type: 'line'
   },
+  control: {
+    detect_double_tap_msec: 500,
+    detect_long_tap_msec: 500,
+    detect_move_px: 10,
+  }
 };
-const DOUBLE_TAP_THRESHOLD_MSEC = 500;
-const LONG_TAP_THRESHOLD_MSEC = 500;
-const MOVE_THRESHOLD_PX = 10;
 export {
-  DEFAULT_FLOW,
   DEFAULT_NODE,
   DEFAULT_LINK,
-  DEFAULT_BODY,
   DEFAULT_OPTIONS,
-  DOUBLE_TAP_THRESHOLD_MSEC,
-  LONG_TAP_THRESHOLD_MSEC,
-  MOVE_THRESHOLD_PX
 };

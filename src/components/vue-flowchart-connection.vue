@@ -2,14 +2,16 @@
   <path
     class="vue-flowchart-svg-nodes-connections-connection"
     :d="path"
-    :stroke-width="options.link.border_width"
-    :stroke="options.link.line_color"
+    :stroke-width="option_link_border_width"
+    :stroke="option_link_border_color"
     fill="none"
   />
 </template>
 <script>
+import options from "../options";
 export default {
   name: "VueFlowchartConnection",
+  mixins: [options],
   props: {
     connection: {
       type: Object,
@@ -22,9 +24,6 @@ export default {
         };
       },
     },
-    options: {
-      type: Object,
-    },
   },
   computed: {
     path() {
@@ -33,7 +32,7 @@ export default {
       const [tx, ty] = [this.connection.toX, this.connection.toY];
       const l = 10;
 
-      switch (this.options.link.type) {
+      switch (this.option_link_type) {
         case "curve":
           return this.createCuve({ fx, fy, tx, ty, l });
         case "key_line":

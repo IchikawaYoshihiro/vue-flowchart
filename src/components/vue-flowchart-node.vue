@@ -4,8 +4,8 @@
       class="vue-flowchart-svg-nodes-node"
       :class="{ selected: is_selected }"
       :stroke-width="strokeWidth"
-      :stroke="options.node.line_color"
-      :fill="options.node.bgcolor"
+      :stroke="option_node_border_color"
+      :fill="option_node_bgcolor"
     >
       <rect
         class="vue-flowchart-svg-nodes-node-box"
@@ -32,11 +32,11 @@
           class="vue-flowchart-svg-nodes-node-texts-title"
           :x="titleX"
           :y="titleY"
-          :font-size="options.node.font_size.title"
-          :fill="options.node.text_color.title"
+          :font-size="option_node_font_size_title"
+          :fill="option_node_text_color_title"
           font-weight="bold"
           ref="title"
-          >{{ node.title || options.node.default_text.title }}</text
+          >{{ node.title || option_node_default_text_title }}</text
         >
         <text
           class="vue-flowchart-svg-nodes-node-texts-body"
@@ -44,10 +44,10 @@
           :key="index"
           :x="titleX"
           :y="getBodyY(index)"
-          :fill="options.node.text_color.body"
-          :font-size="options.node.font_size.body"
+          :fill="option_node_text_color_body"
+          :font-size="option_node_font_size_body"
           ref="bodies"
-          >{{ body || options.node.default_text.body }}</text
+          >{{ body || option_node_default_text_body }}</text
         >
       </g>
     </g>
@@ -62,9 +62,11 @@
 </template>
 <script>
 import Connection from "./vue-flowchart-connection.vue";
+import options from "../options";
 export default {
   name: "VueFlowchartNode",
   components: { Connection },
+  mixins: [options],
   props: {
     is_selected: {
       type: Boolean,
@@ -78,9 +80,6 @@ export default {
       default: () => {
         return [];
       },
-    },
-    options: {
-      type: Object,
     },
   },
   data() {
@@ -107,23 +106,21 @@ export default {
   },
   methods: {
     getBodyY(index) {
-      return (
-        this.borderY + this.options.node.font_size.body * (1.5 + 2 * index)
-      );
+      return this.borderY + this.option_node_font_size_body * (1.5 + 2 * index);
     },
     updateNodeSize() {
-      const padding = this.options.node.font_size.title;
+      const padding = this.option_node_font_size_title;
       const title = this.$refs.title;
       const bodies = this.$refs.bodies || [];
       const max_text_width = Math.max(
         ...[title, ...bodies].map((n) => n.getComputedTextLength() + padding)
       );
-      this.width = Math.min(max_text_width, this.options.node.max_width);
+      this.width = Math.min(max_text_width, this.option_node_max_width);
 
       this.ellipsisText();
     },
     ellipsisText() {
-      const padding = this.options.node.font_size.title;
+      const padding = this.option_node_font_size_title;
       const title = this.$refs.title;
       const bodies = this.$refs.bodies || [];
       [title, ...bodies].map((n) => {
@@ -143,17 +140,17 @@ export default {
       return `translate(${this.node.x}, ${this.node.y})`;
     },
     borderY() {
-      return this.options.node.font_size.title * 2;
+      return this.option_node_font_size_title * 2;
     },
     titleX() {
-      return this.options.node.font_size.title / 2;
+      return this.option_node_font_size_title / 2;
     },
     titleY() {
-      return this.options.node.font_size.title * 1.5;
+      return this.option_node_font_size_title * 1.5;
     },
     strokeWidth() {
-      const width = this.options.node.border_width
-        ? this.options.node.border_width
+      const width = this.option_node_border_width
+        ? this.option_node_border_width
         : 1.5;
       return this.is_selected ? width * 2 : width;
     },
@@ -163,8 +160,8 @@ export default {
         const fromY =
           this.node.bodies.length === 1
             ? this.height / 2
-            : (this.options.node.font_size.title +
-                (l.index + 0.5) * this.options.node.font_size.body) *
+            : (this.option_node_font_size_title +
+                (l.index + 0.5) * this.option_node_font_size_body) *
               2;
 
         const toX = l.to.x - this.node.x;
