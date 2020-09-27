@@ -21,10 +21,21 @@ export default {
     }
   },
   computed: {
-    option_canvas_scale() {
-      return this.hasOption('canvas.scale')
-        ? this.options.canvas.scale
-        : DEFAULT_OPTIONS.canvas.scale
+    option_canvas_scale: {
+      get() {
+        return this.hasOption('canvas.scale')
+          ? this.options.canvas.scale
+          : DEFAULT_OPTIONS.canvas.scale;
+      },
+      set(scale) {
+        if (this.hasOption('canvas.scale')) {
+          return this.options.canvas.scale = scale;
+        }
+        if (this.hasOption('canvas')) {
+          return this.options.canvas = Object.assign(this.options.canvas, { scale });
+        }
+        return this.options = Object.assign(this.options, { canvas: { scale } });
+      }
     },
     option_canvas_grid() {
       return this.hasOption('canvas.grid')
