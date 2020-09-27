@@ -177,7 +177,7 @@ export default {
 };
 </script>
 <style lang="scss" scoped>
-.node {
+.vue-flowchart-svg-nodes-node {
   user-select: none;
   cursor: pointer;
 
