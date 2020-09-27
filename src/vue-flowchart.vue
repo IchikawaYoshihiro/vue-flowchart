@@ -4,6 +4,7 @@
       class="vue-flowchart-svg"
       xmlns="http://www.w3.org/2000/svg"
       ref="svg"
+      :id="id"
       :height="render_area.h"
       :width="render_area.w"
       :viewBox="viewbox"
@@ -90,6 +91,14 @@ export default {
   components: { Node },
   mixins: [handler, options],
   props: {
+    id: {
+      type: String,
+      default: "vue-flowchart",
+    },
+    movable: {
+      type: Boolean,
+      default: true,
+    },
     flow: {
       type: Object,
       default() {
@@ -104,10 +113,6 @@ export default {
       default() {
         return [];
       },
-    },
-    movable: {
-      type: Boolean,
-      default: false,
     },
   },
   methods: {
