@@ -1,6 +1,5 @@
 # vue-flowchart
-
-A mobile-friendly flowchart component of [Vue](https://vuejs.org/).
+Drag and pinchable flowchart components in [Vue.js](https://vuejs.org/).
 
 # demo
 ![demo](./docs/demo.png)
@@ -29,13 +28,9 @@ Vue.use(VueFlowchart);
   <div id="app">
     <VueFlowchart
       :flow="flow"
-      :draggable="draggable"
       :selected_node_ids="selectedNodeIds"
       :options="options"
-      @onTap="handleOnTap"
-      @onLongTap="handleOnLongTap"
-      @onDoubleTap="handleOnDoubleTap"
-      @onMove="handleOnMove"
+      @onTouch="onTouch"
     />
 </template>
 <script>
@@ -44,14 +39,13 @@ export default {
     return {
       flow: {
         nodes: [
-          {id: 1, title: "title1", bodies: ["item1", "item2"], position: [10, 500], size: [100, 50]},
-          {id: 1, title: "title2", bodies: ["item3"], position: [200, 700], size: [100, 50]},
+          {id: 1, title: "title1", bodies: ["item1", "item2"], x: 10, y:500},
+          {id: 1, title: "title2", bodies: ["item3"], x: 200, y:700},
         ],
         links: [
           { from: 1, index: 1, to: 2 },
         ],
       },
-      draggable: false,
       selected_nodes: [],
       options:{},
     };
@@ -62,10 +56,9 @@ export default {
     },
   },
   methods: {
-    handleOnTap({node}){},
-    handleOnLongTap({node}){},
-    handleOnDoubleTap({node}){},
-    handleOnMove({dx,dy}){},
+    onTouch({node_id}){
+      // do something
+    },
   }
 };
 </script>
@@ -73,80 +66,32 @@ export default {
 
 # Parameter Description
 
-|Parameter|Required|Type|Description|
+|Parameter|Default|Type|Description|
 |---|---|---|---|
-|flow|Yes|Object|Flow chart display data.|
-|selected_node_ids|Yes|Array|List of IDs of selected nodes.|
-|draggable|No|boolean|Enables dragging. When the cursor is moved, the onMove event will fire. |
-|options|No|Object|Options.|
+|id|`vue-flowchart`|String| The ID of SVG element.|
+|movable|`true`|boolean|Enables dragging. When the cursor is moved, the onDrag event will fire. |
+|flow|see below|Object|Flowchart display data.|
+|selected_node_ids|`[]`|Array|List of IDs of selected nodes.|
+|options|see below|Object|Options.|
 
 ## flow
+Define the default node and links.
 
-```
-{
-  nodes:[
-    {
-      id: 1, // unique id for Node
-      title: 'title',
-      bodies: [
-        'content 1',
-        ...
-      ],
-      position: [100, 200], // Node position (x, y)
-      size:[100, 50] // Node size (width, height)
-    },
-    ...
-  ],
-  links:[
-    {
-      from: 1,  // Source Node ID
-      index: 0, // The index of the bodies of the Source Node
-      to: 2,    // Destination node ID
-    },
-    ...
-  ],
-}
-```
+https://github.com/IchikawaYoshihiro/vue-flowchart/blob/3afd188ba3967c2a6898acb68de570d52fd6e024/src/const.js#L1-L14
 
 ## options
+Define the default options.
 
-```
-options: {
-  canvas: {
-    width: 960,
-    height: 720,
-    grid: 10,
-    grid_color: "#bbb",
-  },
-  node: {
-    border_width: 1.5,
-    bgcolor: "#fff",
-    font_size: {
-      title: 16,
-      body: 12,
-    },
-    text_color: {
-      title: "#111",
-      body: "#000",
-    },
-    line_color: "#40b883",
-    max_width: 300,
-  },
-  link: {
-    line_color: "#40b883",
-    border_width: 1.5,
-  },
-}
-```
+https://github.com/IchikawaYoshihiro/vue-flowchart/blob/3afd188ba3967c2a6898acb68de570d52fd6e024/src/const.js#L15-L49
 
-# Listener Description
-This component DOES NOT CHANGE THE FLOW DATA.
+# Event Description
 
-You must implement a listener to update the "original data of the flow" at the time of the event.
-
-|Listener|Argments|Return|Description|
+|Event|Argments|Description|
 |---|---|---|
-|onTap|`{ node }`|When tapped.|
-|onLongTap|`{ node }`|When long-tapped. (>=500ms)|
-|onDoubleTap|`{ node }`|When tapped twice. (<500ms)|
-|onMove|`{ dx, dy }`|When draggable is enabled and the cursor is moved.|
+|onTouch|`{ node_id }`|When touched.|
+|onLongTouch|`{ node_id }`|When long-touched. (default: >=500ms)|
+|onDoubleTouch|`{ node_id }`|When touched twice. (default: <500ms)|
+|onTouchEnd|`{ node_id }`|When the touch is over.|
+|onDrag|`{ dx, dy }`|When draggable is enabled and the cursor is moved.|
+|onBackgroundDrag|`{ dx, dy }`|When draggable is enabled and the cursor is moved  in a blank space.|
+|onPinch|`{ dr, dh, dv, dl, cx, cy }`|When pinching or mouse wheel is used.<br>`dr`: Rotation angle. <br>`dh`, `dv` : Difference between horizontal and vertical movement.<br>`dl`: Difference in touch distance or wheel travel distance.<br> `cx`,`cy`: Touch intermediate coordinates or wheeled coordinates.|

@@ -1,6 +1,6 @@
 {
   "name": "@yosichikaw/vue-flowchart",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "main": "dist/vue-flowchart.umd.js",
   "module": "dist/vue-flowchart.esm.js",
   "unpkg": "dist/vue-flowchart.min.js",
@@ -48,15 +48,16 @@
     "last 2 versions",
     "not dead"
   ],
-  "description": "draggable flowchart component",
+  "description": "Drag and pinchable flowchart components in Vue.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/IchikawaYoshihiro/vue-flowchart.git"
   },
   "keywords": [
-    "vue",
+    "vue.js",
     "flowchart",
-    "draggable"
+    "draggable",
+    "pinchable"
   ],
   "author": "Yoshihiro Ichikawa <yosichikaw+npm@gmail.com>",
   "license": "MIT",
