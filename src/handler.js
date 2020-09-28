@@ -133,8 +133,9 @@ export default {
       );
     },
     updateBackgroundPosition({ dx, dy }) {
-      this.offset.x += dx;
-      this.offset.y += dy;
+      const [real_dx, real_dy] = [dx / this.option_canvas_scale, dy / this.option_canvas_scale];
+      this.offset.x += real_dx;
+      this.offset.y += real_dy;
     },
     updateScale({ dl, cx, cy }) {
       const old_scale = this.option_canvas_scale;
