@@ -181,8 +181,8 @@ export default {
     shouldMove(touch) {
       const t0 = this.touches[0];
       const t1 = touch;
-      return Math.abs(t0.clientX - t1.clientX) > this.option_canvas_grid
-        || Math.abs(t0.clientY - t1.clientY) > this.option_canvas_grid;
+      return Math.abs(t0.clientX - t1.clientX) >= this.option_canvas_grid
+        || Math.abs(t0.clientY - t1.clientY) >= this.option_canvas_grid;
     },
     isPinch(touches) {
       if (this.touches.length >= 2 && touches.length >= 2) {
