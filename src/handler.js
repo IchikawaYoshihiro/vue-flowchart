@@ -153,7 +153,9 @@ export default {
       this.render_area.h = this.$el.offsetHeight;
     },
     isDoubleTouch(touches, touched_at) {
-      if (this.touched_at && touched_at - this.touched_at < this.option_control_detect_double_tap_msec && this.touches.length === 1 && touches.length === 1) {
+      if (this.touched_at
+        && touched_at - this.touched_at < this.option_control_detect_double_tap_msec
+        && this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];
         return Math.abs(t0.clientX - t1.clientX) < this.option_control_detect_move_px
