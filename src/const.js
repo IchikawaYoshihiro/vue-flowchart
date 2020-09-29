@@ -49,6 +49,7 @@ const DEFAULT_OPTIONS = {
     detect_double_tap_msec: 500,
     detect_long_tap_msec: 500,
     detect_move_px: 10,
+    drag_fps: 60,
   }
 };
 export {

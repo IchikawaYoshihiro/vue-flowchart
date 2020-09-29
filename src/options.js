@@ -157,5 +157,10 @@ export default {
         ? this.options.control.detect_move_px
         : DEFAULT_OPTIONS.control.detect_move_px
     },
+    option_control_drag_fps() {
+      return this.hasOption('control.drag_fps')
+        ? this.options.control.drag_fps
+        : DEFAULT_OPTIONS.control.drag_fps
+    },
   }
 }

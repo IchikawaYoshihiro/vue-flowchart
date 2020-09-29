@@ -28,6 +28,7 @@ export default {
 
       if (this.touch_timer) {
         clearTimeout(this.touch_timer);
+        this.touch_timer = null;
       }
 
       if (this.isDoubleTouch(touches, touched_at)) {
@@ -57,6 +58,7 @@ export default {
     processEnd(touches, node) {
       if (this.touch_timer) {
         clearTimeout(this.touch_timer);
+        this.touch_timer = null;
       }
 
       if (touches.length === 0) {
@@ -86,7 +88,19 @@ export default {
     handleMouseMove(event) {
       this.processMove([event]);
     },
+    limitFPS() {
+      if (this.option_control_drag_fps < 120) {
+        this.removeMoveListener();
+        setTimeout(() => {
+          if (this.touch_timer) {
+            this.addMoveListener();
+          }
+        }, 1000 / this.option_control_drag_fps);
+      }
+    },
     processMove(touches) {
+      this.limitFPS();
+
       if (this.isDrag(touches)) {
         if (!this.shouldMove(touches[0])) {
           return;
