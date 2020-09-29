@@ -1,0 +1,27 @@
+## 0.4.0 - 2020-10-01
+### Added
+  - add options `options.pinchable`, `options.enable_grid`, `options.enable_filter`, <br>`options.node.draggable`,`options.node.fit_grid`.
+  - Improved dragging performance.
+### Changed 
+  - Change option `movable` -> `options.draggable`.
+
+## 0.3.2 - 2020-09-28
+### Fixed
+- Fixed to multiply the movement distance when dragging the background by the scale.
+
+## 0.3.1 - 2020-09-27
+### Fixed
+- Fixed change to multiply the movement distance when dragging the background by the scale.
+- Fixed scale can't be changed.
+
+## 0.3.0 - 2020-09-27
+### Added
+- Added keyline and curve to link types.
+
+## x.x.x - 2020-xx-xx
+### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
