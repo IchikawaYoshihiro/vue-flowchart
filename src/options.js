@@ -37,6 +37,26 @@ export default {
         return this.options = Object.assign(this.options, { canvas: { scale } });
       }
     },
+    option_draggable() {
+      return this.hasOption('draggable')
+        ? this.options.draggable
+        : DEFAULT_OPTIONS.draggable
+    },
+    option_pinchable() {
+      return this.hasOption('pinchable')
+        ? this.options.pinchable
+        : DEFAULT_OPTIONS.pinchable
+    },
+    option_enable_grid() {
+      return this.hasOption('enable_grid')
+        ? this.options.enable_grid
+        : DEFAULT_OPTIONS.enable_grid
+    },
+    option_enable_filter() {
+      return this.hasOption('enable_filter')
+        ? this.options.enable_filter
+        : DEFAULT_OPTIONS.enable_filter
+    },
     option_canvas_grid() {
       return this.hasOption('canvas.grid')
         ? this.options.canvas.grid
@@ -46,6 +66,16 @@ export default {
       return this.hasOption('canvas.grid_color')
         ? this.options.canvas.grid_color
         : DEFAULT_OPTIONS.canvas.grid_color
+    },
+    option_node_draggable() {
+      return this.hasOption('node.draggable')
+        ? this.options.node.draggable
+        : DEFAULT_OPTIONS.node.draggable
+    },
+    option_node_fit_grid() {
+      return this.hasOption('node.fit_grid')
+        ? this.options.node.fit_grid
+        : DEFAULT_OPTIONS.node.fit_grid
     },
     option_node_bgcolor() {
       return this.hasOption('node.bgcolor')

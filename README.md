@@ -68,30 +68,70 @@ export default {
 
 |Parameter|Default|Type|Description|
 |---|---|---|---|
-|id|`vue-flowchart`|String| The ID of SVG element.|
-|movable|`true`|boolean|Enables dragging. When the cursor is moved, the onDrag event will fire. |
+|id|"vue-flowchart"|String| The ID of SVG element.|
 |flow|see below|Object|Flowchart display data.|
 |selected_node_ids|`[]`|Array|List of IDs of selected nodes.|
 |options|see below|Object|Options.|
 
-## flow
-Define the default node and links.
+Define the default Parameters.
+https://github.com/IchikawaYoshihiro/vue-flowchart/blob/master/src/const.js
 
-https://github.com/IchikawaYoshihiro/vue-flowchart/blob/3afd188ba3967c2a6898acb68de570d52fd6e024/src/const.js#L1-L14
+## flow
+|Param|Type|Default|Description|
+|---|---|---|---|
+|nodes|Array|`[]`||
+|nodes.*.id|String, Number|null||
+|nodes.*.title|String|""||
+|nodes.*.bodies|Array|`[]`||
+|nodes.*.bodies.\*|String|""|Message|
+|nodes.*.x|Number|0||
+|nodes.*.y|Number|0||
+|liks|Array|`[]`||
+|liks.*.from|String,Number|0|ID of the source node.|
+|liks.*.index|Number|0|The index of the bodies of the linking source node.|
+|liks.*.to|String,Number|0|ID of the linked node.|
 
 ## options
-Define the default options.
-
-https://github.com/IchikawaYoshihiro/vue-flowchart/blob/3afd188ba3967c2a6898acb68de570d52fd6e024/src/const.js#L15-L49
+|Param|Type|Default|Description|
+|---|---|---|---|
+|draggable|Boolean|true||
+|pinchable|Boolean|true||
+|enable_grid|Boolean|true||
+|enable_filter|Boolean|true||
+|canvas.scale|Number|0.75||
+|canvas.grid|Number|10||
+|canvas.grid_color|String|"#bbb"||
+|node.draggable|Boolean|true||
+|node.fit_grid|Boolean|true||
+|node.bgcolor|String|"#fff"||
+|node.border_color|String|"#40b883"||
+|node.border_width|Number|1.5||
+|node.max_width|Number|300||
+|node.font_size.title|Number|16||
+|node.font_size.body|Number|12||
+|node.default_text.title|String|"No title"||
+|node.default_text.body|String|"No message"||
+|node.text_color.title|String|"#111"||
+|node.text_color.body|String|"#000"||
+|link.border_color|String|"#40b883"||
+|link.border_width|Number|1.5||
+|link.type|line, key_line, curve|"line"||
+|control.detect_double_tap_msec|Number|500||
+|control.detect_long_tap_msec|Number|500||
+|control.detect_move_px|Number|10||
 
 # Event Description
 
 |Event|Argments|Description|
 |---|---|---|
 |onTouch|`{ node_id }`|When touched.|
-|onLongTouch|`{ node_id }`|When long-touched. (default: >=500ms)|
-|onDoubleTouch|`{ node_id }`|When touched twice. (default: <500ms)|
+|onLongTouch|`{ node_id }`|When long-touched.|
+|onDoubleTouch|`{ node_id }`|When touched twice.|
 |onTouchEnd|`{ node_id }`|When the touch is over.|
 |onDrag|`{ dx, dy }`|When draggable is enabled and the cursor is moved.|
 |onBackgroundDrag|`{ dx, dy }`|When draggable is enabled and the cursor is moved  in a blank space.|
 |onPinch|`{ dr, dh, dv, dl, cx, cy }`|When pinching or mouse wheel is used.<br>`dr`: Rotation angle. <br>`dh`, `dv` : Difference between horizontal and vertical movement.<br>`dl`: Difference in touch distance or wheel travel distance.<br> `cx`,`cy`: Touch intermediate coordinates or wheeled coordinates.|
+
+# Change Log
+
+[CHANGELOG.md](./CHANGELOG.md)

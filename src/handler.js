@@ -22,7 +22,9 @@ export default {
       const node_id = node ? node.id : null;
 
       this.touch_node = node_id;
-      this.addMoveListener();
+      if (this.option_draggable || this.option_node_draggable || this.option_pinchable) {
+        this.addMoveListener();
+      }
 
       if (this.touch_timer) {
         clearTimeout(this.touch_timer);
@@ -66,7 +68,7 @@ export default {
 
     // mouve handling
     addMoveListener() {
-      if (this.movable) {
+      if (this.option_draggable || this.option_pinchable || this.option_node_draggable) {
         this.$el.addEventListener('touchmove', this.handleTouchMove, { passive: false });
         this.$el.addEventListener('mousemove', this.handleMouseMove, { passive: true });
         this.$el.addEventListener('wheel', this.handleWheel, { passive: false });
@@ -92,16 +94,16 @@ export default {
         const { dx, dy } = this.calcDrag(touches[0]);
 
         this.touches = touches;
-        if (this.touch_node) {
+        if (this.option_node_draggable && this.touch_node) {
           this.$emit('onDrag', { dx, dy });
-          this.updateNodePosition({ dx, dy })
-        } else {
-          this.$emit('onBackgroundDrag', { dx, dy });
-          this.updateBackgroundPosition({ dx, dy })
+          return this.updateNodePosition({ dx, dy })
         }
-        return;
+        if (this.option_draggable) {
+          this.$emit('onBackgroundDrag', { dx, dy });
+          return this.updateBackgroundPosition({ dx, dy })
+        }
       }
-      if (this.isPinch(touches)) {
+      if (this.option_pinchable && this.isPinch(touches)) {
         const { dr, dh, dv, dl, cx, cy } = this.calcPinch(touches)
 
         this.touches = touches;
@@ -123,13 +125,20 @@ export default {
 
     updateNodePosition({ dx, dy }) {
       const [real_dx, real_dy] = [dx / this.option_canvas_scale, dy / this.option_canvas_scale];
-      this.flow.nodes = this.flow.nodes.map((n) =>
-        this.selected_node_ids.includes(n.id)
-          ? Object.assign({}, n, {
-            x: Math.round((n.x + real_dx) / this.option_canvas_grid) * this.option_canvas_grid,
-            y: Math.round((n.y + real_dy) / this.option_canvas_grid) * this.option_canvas_grid
-          })
-          : n
+      this.flow.nodes = this.flow.nodes.map((n) => {
+        if (this.selected_node_ids.includes(n.id)) {
+          const [x, y] = this.option_node_fit_grid
+            ? [
+              Math.round((n.x + real_dx) / this.option_canvas_grid) * this.option_canvas_grid,
+              Math.round((n.y + real_dy) / this.option_canvas_grid) * this.option_canvas_grid
+            ]
+            : [
+              n.x + real_dx, n.y + real_dy
+            ];
+          return Object.assign({}, n, { x, y });
+        }
+        return n;
+      }
       );
     },
     updateBackgroundPosition({ dx, dy }) {
@@ -182,6 +191,9 @@ export default {
       return false;
     },
     shouldMove(touch) {
+      if (!this.option_node_fit_grid) {
+        return true;
+      }
       const t0 = this.touches[0];
       const t1 = touch;
       return Math.abs(t0.clientX - t1.clientX) >= this.option_canvas_grid
@@ -189,10 +201,8 @@ export default {
     },
     isPinch(touches) {
       if (this.touches.length >= 2 && touches.length >= 2) {
-        const t00 = this.touches[0];
-        const t01 = touches[0];
-        const t10 = this.touches[1];
-        const t11 = touches[1];
+        const [t00, t10] = [this.touches[0], this.touches[1]];
+        const [t01, t11] = [touches[0], touches[1]];
         return Math.abs(Math.abs(t00.clientX - t10.clientX) - Math.abs(t01.clientX - t11.clientX)) > this.option_control_detect_move_px
           || Math.abs(Math.abs(t00.clientY - t10.clientY) - Math.abs(t01.clientY - t11.clientY)) > this.option_control_detect_move_px
       }

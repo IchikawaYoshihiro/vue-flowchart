@@ -4,8 +4,6 @@ const DEFAULT_NODE = {
   bodies: [],
   x: 0,
   y: 0,
-  w: 100,
-  h: 80,
 };
 const DEFAULT_LINK = {
   from: null,
@@ -13,12 +11,18 @@ const DEFAULT_LINK = {
   to: null,
 };
 const DEFAULT_OPTIONS = {
+  draggable: true,
+  pinchable: true,
+  enable_grid: true,
+  enable_filter: true,
   canvas: {
     scale: 0.75,
     grid: 10,
     grid_color: "#bbb",
   },
   node: {
+    draggable: true,
+    fit_grid: true,
     bgcolor: "#fff",
     border_color: "#40b883",
     border_width: 1.5,

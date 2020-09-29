@@ -13,7 +13,7 @@
       @touchend.stop.prevent="(e) => handleTouchEnd(e, null)"
       @mouseup.stop.prevent="(e) => handleMouseUp(e, null)"
     >
-      <slot name="grid">
+      <slot name="grid" v-if="option_enable_grid">
         <defs>
           <pattern
             id="grid"
@@ -43,7 +43,7 @@
       </slot>
       <g
         class="vue-flowchart-svg-nodes"
-        filter="url(#shadow)"
+        :filter="option_enable_filter ? 'url(#filter)' : 'none'"
         :transform="transform"
       >
         <g
@@ -64,7 +64,7 @@
       </g>
       <slot name="filter">
         <defs>
-          <filter id="shadow">
+          <filter id="filter">
             <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="blur" />
             <feComponentTransfer in="blur" result="blur_opacity">
               <feFuncA type="linear" slope="0.25" />
@@ -94,10 +94,6 @@ export default {
     id: {
       type: String,
       default: "vue-flowchart",
-    },
-    movable: {
-      type: Boolean,
-      default: true,
     },
     flow: {
       type: Object,

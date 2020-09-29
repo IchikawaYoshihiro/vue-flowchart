@@ -86,6 +86,7 @@ export default {
     return {
       width: 0,
       height: 0,
+      hash: null,
     };
   },
   created() {
@@ -105,10 +106,20 @@ export default {
     this.updateNodeSize();
   },
   methods: {
+    toHash() {
+      return [this.node.title, ...this.node.bodies].join("");
+    },
+    hashEquals(hash) {
+      return this.hash && hash && this.hash === hash;
+    },
     getBodyY(index) {
       return this.borderY + this.option_node_font_size_body * (1.5 + 2 * index);
     },
     updateNodeSize() {
+      if (this.hashEquals(this.toHash())) {
+        return;
+      }
+      this.hash = this.toHash();
       const padding = this.option_node_font_size_title;
       const title = this.$refs.title;
       const bodies = this.$refs.bodies || [];
@@ -117,7 +128,9 @@ export default {
       );
       this.width = Math.min(max_text_width, this.option_node_max_width);
 
-      this.ellipsisText();
+      if (this.width >= this.option_node_max_width) {
+        this.ellipsisText();
+      }
     },
     ellipsisText() {
       const padding = this.option_node_font_size_title;
