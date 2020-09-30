@@ -141,14 +141,48 @@ ID array of the selected node.
 ## grid
 Custom grids can be added.
 If enable_grid is disabled, it is not visible.
+The ID of the pattern element must be specified as "grid".
 
 ### Example
+Dotted Grid.
+```
+<VueFlowchart>
+  <template v-slot:grid="{ options, gridScale }">
+    <defs>
+      <pattern
+        id="grid"
+        x="0"
+        y="0"
+        :width="gridScale.x"
+        :height="gridScale.y"
+      >
+        <circle cx="0" cy="0" r="1" :stroke="options.canvas.grid_color" />
+      </pattern>
+    </defs>
+  </template>
+</VueFlowchart>
+```
+<img src="./docs/grid_demo.png" width="50%">
 
 ## filter
 Allows you to add a custom filter.
 Not visible if enable_filter is disabled.
+The ID of the pattern element must be specified as "filter".
 
 ### Example
+An embossable filter sample.
+```
+<VueFlowchart>
+  <template v-slot:filter">
+    <defs>
+      <filter id="filter">
+        <feConvolveMatrix order="3 3" kernelMatrix="3 0 0 0 1 0 0 0 -3" />
+      </filter>
+    </defs>
+  </template>
+</VueFlowchart>
+```
+<img src="./docs/filter_demo.png" width="50%">
 
 
 # Change Log

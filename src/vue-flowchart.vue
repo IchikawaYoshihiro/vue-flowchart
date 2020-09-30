@@ -14,7 +14,12 @@
       @touchend.stop.prevent="(e) => handleTouchEnd(e, null)"
       @mouseup.stop.prevent="(e) => handleMouseUp(e, null)"
     >
-      <slot name="grid" v-if="option_enable_grid" :options="options">
+      <slot
+        name="grid"
+        v-if="option_enable_grid"
+        :options="options"
+        :gridScale="gridScale"
+      >
         <defs>
           <pattern
             id="grid"
@@ -31,17 +36,17 @@
             />
           </pattern>
         </defs>
-        <g class="grid" :transform="gridTransform">
-          <rect
-            class="vue-flowchart-svg-grid"
-            fill="url(#grid)"
-            x="0"
-            y="0"
-            :width="gridArea.w"
-            :height="gridArea.h"
-          />
-        </g>
       </slot>
+      <g class="grid" :transform="gridTransform">
+        <rect
+          class="vue-flowchart-svg-grid"
+          fill="url(#grid)"
+          x="0"
+          y="0"
+          :width="gridArea.w"
+          :height="gridArea.h"
+        />
+      </g>
       <g
         class="vue-flowchart-svg-nodes"
         :filter="option_enable_filter ? 'url(#filter)' : 'none'"
