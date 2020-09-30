@@ -5,10 +5,12 @@
     :stroke-width="option_link_border_width"
     :stroke="option_link_border_color"
     fill="none"
+    stroke-linecap="round"
   />
 </template>
 <script>
 import options from "../options";
+import { LINK_TYPES } from "../const";
 export default {
   name: "VueFlowchartConnection",
   mixins: [options],
@@ -33,9 +35,9 @@ export default {
       const l = 10;
 
       switch (this.option_link_type) {
-        case "curve":
+        case LINK_TYPES.curve:
           return this.createCuve({ fx, fy, tx, ty, l });
-        case "key_line":
+        case LINK_TYPES.key_line:
           return this.createKeyLine({ fx, fy, tx, ty, l });
         default:
           return this.createLine({ fx, fy, tx, ty });

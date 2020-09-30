@@ -8,12 +8,13 @@
       :height="render_area.h"
       :width="render_area.w"
       :viewBox="viewbox"
+      overflow="hidden"
       @touchstart.stop.prevent="(e) => handleTouchStart(e, null)"
       @mousedown.stop.prevent="(e) => handleMouseDown(e, null)"
       @touchend.stop.prevent="(e) => handleTouchEnd(e, null)"
       @mouseup.stop.prevent="(e) => handleMouseUp(e, null)"
     >
-      <slot name="grid" v-if="option_enable_grid">
+      <slot name="grid" v-if="option_enable_grid" :options="options">
         <defs>
           <pattern
             id="grid"

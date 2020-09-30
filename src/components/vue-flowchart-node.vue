@@ -101,13 +101,20 @@ export default {
     "node.bodies"(b) {
       this.$nextTick(() => this.updateNodeSize());
     },
+    "options.node.max_width"(b) {
+      this.$nextTick(() => this.updateNodeSize());
+    },
   },
   mounted() {
     this.updateNodeSize();
   },
   methods: {
     toHash() {
-      return [this.node.title, ...this.node.bodies].join("");
+      return [
+        this.option_node_max_width,
+        this.node.title,
+        ...this.node.bodies,
+      ].join("");
     },
     hashEquals(hash) {
       return this.hash && hash && this.hash === hash;
@@ -121,8 +128,17 @@ export default {
       }
       this.hash = this.toHash();
       const padding = this.option_node_font_size_title;
+
       const title = this.$refs.title;
+      title.innerHTML = this.node.title || this.option_node_default_text_title;
+
       const bodies = this.$refs.bodies || [];
+      bodies.map(
+        (b, i) =>
+          (b.innerHTML =
+            this.node.bodies[i] || this.option_node_default_text_body)
+      );
+
       const max_text_width = Math.max(
         ...[title, ...bodies].map((n) => n.getComputedTextLength() + padding)
       );

@@ -64,7 +64,7 @@ export default {
 </script>
 ```
 
-# Parameter Description
+# Parameters
 
 |Parameter|Default|Type|Description|
 |---|---|---|---|
@@ -77,7 +77,7 @@ Define the default Parameters.
 https://github.com/IchikawaYoshihiro/vue-flowchart/blob/master/src/const.js
 
 ## flow
-|Param|Type|Default|Description|
+|Parameter|Type|Default|Description|
 |---|---|---|---|
 |nodes|Array|`[]`||
 |nodes.*.id|String, Number|null||
@@ -91,18 +91,21 @@ https://github.com/IchikawaYoshihiro/vue-flowchart/blob/master/src/const.js
 |liks.*.index|Number|0|The index of the bodies of the linking source node.|
 |liks.*.to|String,Number|0|ID of the linked node.|
 
+## selected_node_ids
+ID array of the selected node.
+
 ## options
-|Param|Type|Default|Description|
+|Parameter|Type|Default|Description|
 |---|---|---|---|
-|draggable|Boolean|true||
+|draggable|Boolean|true|The value of whether the background can be dragged.|
 |pinchable|Boolean|true||
-|enable_grid|Boolean|true||
-|enable_filter|Boolean|true||
+|enable_grid|Boolean|true|The value to display the grid.|
+|enable_filter|Boolean|true|Value whether to apply shadow filter, if true, drawing performance will be reduced on low specs.|
 |canvas.scale|Number|0.75||
 |canvas.grid|Number|10||
 |canvas.grid_color|String|"#bbb"||
-|node.draggable|Boolean|true||
-|node.fit_grid|Boolean|true||
+|node.draggable|Boolean|true|The value of whether the node can be dragged.|
+|node.fit_grid|Boolean|true|The value to align to the grid when the node is moved.|
 |node.bgcolor|String|"#fff"||
 |node.border_color|String|"#40b883"||
 |node.border_width|Number|1.5||
@@ -116,11 +119,12 @@ https://github.com/IchikawaYoshihiro/vue-flowchart/blob/master/src/const.js
 |link.border_color|String|"#40b883"||
 |link.border_width|Number|1.5||
 |link.type|line, key_line, curve|"line"||
-|control.detect_double_tap_msec|Number|500||
-|control.detect_long_tap_msec|Number|500||
-|control.detect_move_px|Number|10||
+|control.detect_double_touch_msec|Number|500|The value of how many milliseconds it is judged to be a double touch when it is touched twice.|
+|control.detect_long_touch_msec|Number|500|The value of how many milliseconds or more of continuous touch is judged to be long touch.|
+|control.detect_move_px|Number|10|The range of whether you are tapping the same spot. <br>If you make it too small, a slight shift of your finger will be judged as a move and the long tap will not fire.|
+|control.drag_fps|Number|60|Drag event firing frequency. <br>If you set it above 120, all movement events will fire, which may result in a performance degradation.|
 
-# Event Description
+# Events
 
 |Event|Argments|Description|
 |---|---|---|
@@ -131,6 +135,21 @@ https://github.com/IchikawaYoshihiro/vue-flowchart/blob/master/src/const.js
 |onDrag|`{ dx, dy }`|When draggable is enabled and the cursor is moved.|
 |onBackgroundDrag|`{ dx, dy }`|When draggable is enabled and the cursor is moved  in a blank space.|
 |onPinch|`{ dr, dh, dv, dl, cx, cy }`|When pinching or mouse wheel is used.<br>`dr`: Rotation angle. <br>`dh`, `dv` : Difference between horizontal and vertical movement.<br>`dl`: Difference in touch distance or wheel travel distance.<br> `cx`,`cy`: Touch intermediate coordinates or wheeled coordinates.|
+
+
+# Slots
+## grid
+Custom grids can be added.
+If enable_grid is disabled, it is not visible.
+
+### Example
+
+## filter
+Allows you to add a custom filter.
+Not visible if enable_filter is disabled.
+
+### Example
+
 
 # Change Log
 

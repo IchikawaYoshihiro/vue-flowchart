@@ -41,7 +41,7 @@ export default {
           this.$emit('onLongTouch', { node_id });
           this.removeMoveListener();
         }
-      }, this.option_control_detect_long_tap_msec);
+      }, this.option_control_detect_long_touch_msec);
 
       this.touches = touches;
       this.touched_at = touched_at;
@@ -149,7 +149,7 @@ export default {
             : [
               n.x + real_dx, n.y + real_dy
             ];
-          return Object.assign({}, n, { x, y });
+          return Object.assign({}, n, { x: this.to_i(x), y: this.to_i(y) });
         }
         return n;
       }
@@ -157,8 +157,8 @@ export default {
     },
     updateBackgroundPosition({ dx, dy }) {
       const [real_dx, real_dy] = [dx / this.option_canvas_scale, dy / this.option_canvas_scale];
-      this.offset.x += real_dx;
-      this.offset.y += real_dy;
+      this.offset.x += this.to_i(real_dx);
+      this.offset.y += this.to_i(real_dy);
     },
     updateScale({ dl, cx, cy }) {
       const old_scale = this.option_canvas_scale;
@@ -167,9 +167,9 @@ export default {
         return;
       }
 
-      this.offset.x = this.offset.x - (new_scale - old_scale) * cx;
-      this.offset.y = this.offset.y - (new_scale - old_scale) * cy;
-      this.option_canvas_scale = new_scale;
+      this.offset.x = this.to_i(this.offset.x - (new_scale - old_scale) * cx);
+      this.offset.y = this.to_i(this.offset.y - (new_scale - old_scale) * cy);
+      this.option_canvas_scale = this.to_f(new_scale, 2);
     },
     updateRenderArea() {
       this.render_area.w = this.$el.offsetWidth;
@@ -177,7 +177,7 @@ export default {
     },
     isDoubleTouch(touches, touched_at) {
       if (this.touched_at
-        && touched_at - this.touched_at < this.option_control_detect_double_tap_msec
+        && touched_at - this.touched_at < this.option_control_detect_double_touch_msec
         && this.touches.length === 1 && touches.length === 1) {
         const t0 = this.touches[0];
         const t1 = touches[0];

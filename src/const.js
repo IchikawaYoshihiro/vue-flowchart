@@ -16,7 +16,7 @@ const DEFAULT_OPTIONS = {
   enable_grid: true,
   enable_filter: true,
   canvas: {
-    scale: 0.75,
+    scale: 1,
     grid: 10,
     grid_color: "#bbb",
   },
@@ -24,8 +24,8 @@ const DEFAULT_OPTIONS = {
     draggable: true,
     fit_grid: true,
     bgcolor: "#fff",
-    border_color: "#40b883",
-    border_width: 1.5,
+    border_color: "#007bff",
+    border_width: 2,
     max_width: 300,
     font_size: {
       title: 16,
@@ -36,24 +36,31 @@ const DEFAULT_OPTIONS = {
       body: "No message",
     },
     text_color: {
-      title: "#111",
-      body: "#000",
+      title: "#343a40",
+      body: "#6c757d",
     },
   },
   link: {
-    border_color: "#40b883",
+    border_color: "#007bff",
     border_width: 1.5,
     type: 'line'
   },
   control: {
-    detect_double_tap_msec: 500,
-    detect_long_tap_msec: 500,
+    detect_double_touch_msec: 500,
+    detect_long_touch_msec: 500,
     detect_move_px: 10,
     drag_fps: 60,
   }
 };
+const LINK_TYPES = {
+  line: 'line',
+  key_line: 'key_line',
+  curve: 'curve',
+};
+
 export {
   DEFAULT_NODE,
   DEFAULT_LINK,
   DEFAULT_OPTIONS,
+  LINK_TYPES,
 };

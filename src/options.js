@@ -18,13 +18,24 @@ export default {
           ? o[name]
           : false
         , this.options || {}).hasOwnProperty(last);
+    },
+    to_i(v) {
+      return parseInt(v, 10);
+    },
+    to_f(v, order) {
+      const l = 10 ** order;
+      return Math.round(parseFloat(v) * l) / l;
+    },
+    to_b(v) {
+      return !!v;
     }
+
   },
   computed: {
     option_canvas_scale: {
       get() {
         return this.hasOption('canvas.scale')
-          ? this.options.canvas.scale
+          ? this.to_f(this.options.canvas.scale, 2)
           : DEFAULT_OPTIONS.canvas.scale;
       },
       set(scale) {
@@ -39,27 +50,27 @@ export default {
     },
     option_draggable() {
       return this.hasOption('draggable')
-        ? this.options.draggable
+        ? this.to_b(this.options.draggable)
         : DEFAULT_OPTIONS.draggable
     },
     option_pinchable() {
       return this.hasOption('pinchable')
-        ? this.options.pinchable
+        ? this.to_b(this.options.pinchable)
         : DEFAULT_OPTIONS.pinchable
     },
     option_enable_grid() {
       return this.hasOption('enable_grid')
-        ? this.options.enable_grid
+        ? this.to_b(this.options.enable_grid)
         : DEFAULT_OPTIONS.enable_grid
     },
     option_enable_filter() {
       return this.hasOption('enable_filter')
-        ? this.options.enable_filter
+        ? this.to_b(this.options.enable_filter)
         : DEFAULT_OPTIONS.enable_filter
     },
     option_canvas_grid() {
       return this.hasOption('canvas.grid')
-        ? this.options.canvas.grid
+        ? this.to_i(this.options.canvas.grid)
         : DEFAULT_OPTIONS.canvas.grid
     },
     option_canvas_grid_color() {
@@ -69,12 +80,12 @@ export default {
     },
     option_node_draggable() {
       return this.hasOption('node.draggable')
-        ? this.options.node.draggable
+        ? this.to_b(this.options.node.draggable)
         : DEFAULT_OPTIONS.node.draggable
     },
     option_node_fit_grid() {
       return this.hasOption('node.fit_grid')
-        ? this.options.node.fit_grid
+        ? this.to_b(this.options.node.fit_grid)
         : DEFAULT_OPTIONS.node.fit_grid
     },
     option_node_bgcolor() {
@@ -89,22 +100,22 @@ export default {
     },
     option_node_border_width() {
       return this.hasOption('node.border_width')
-        ? this.options.node.border_width
+        ? this.to_i(this.options.node.border_width)
         : DEFAULT_OPTIONS.node.border_width
     },
     option_node_max_width() {
       return this.hasOption('node.max_width')
-        ? this.options.node.max_width
+        ? this.to_i(this.options.node.max_width)
         : DEFAULT_OPTIONS.node.max_width
     },
     option_node_font_size_title() {
       return this.hasOption('node.font_size.title')
-        ? this.options.node.font_size.title
+        ? this.to_i(this.options.node.font_size.title)
         : DEFAULT_OPTIONS.node.font_size.title
     },
     option_node_font_size_body() {
       return this.hasOption('node.font_size.body')
-        ? this.options.node.font_size.body
+        ? this.to_i(this.options.node.font_size.body)
         : DEFAULT_OPTIONS.node.font_size.body
     },
     option_node_default_text_title() {
@@ -134,7 +145,7 @@ export default {
     },
     option_link_border_width() {
       return this.hasOption('link.border_width')
-        ? this.options.link.border_width
+        ? this.to_i(this.options.link.border_width)
         : DEFAULT_OPTIONS.link.border_width
     },
     option_link_type() {
@@ -142,24 +153,24 @@ export default {
         ? this.options.link.type
         : DEFAULT_OPTIONS.link.type
     },
-    option_control_detect_double_tap_msec() {
-      return this.hasOption('control.detect_double_tap_msec')
-        ? this.options.control.detect_double_tap_msec
-        : DEFAULT_OPTIONS.control.detect_double_tap_msec
+    option_control_detect_double_touch_msec() {
+      return this.hasOption('control.detect_double_touch_msec')
+        ? this.to_i(this.options.control.detect_double_touch_msec)
+        : DEFAULT_OPTIONS.control.detect_double_touch_msec
     },
-    option_control_detect_long_tap_msec() {
-      return this.hasOption('control.detect_long_tap_msec')
-        ? this.options.control.detect_long_tap_msec
-        : DEFAULT_OPTIONS.control.detect_long_tap_msec
+    option_control_detect_long_touch_msec() {
+      return this.hasOption('control.detect_long_touch_msec')
+        ? this.to_i(this.options.control.detect_long_touch_msec)
+        : DEFAULT_OPTIONS.control.detect_long_touch_msec
     },
     option_control_detect_move_px() {
       return this.hasOption('control.detect_move_px')
-        ? this.options.control.detect_move_px
+        ? this.to_i(this.options.control.detect_move_px)
         : DEFAULT_OPTIONS.control.detect_move_px
     },
     option_control_drag_fps() {
       return this.hasOption('control.drag_fps')
-        ? this.options.control.drag_fps
+        ? this.to_i(this.options.control.drag_fps)
         : DEFAULT_OPTIONS.control.drag_fps
     },
   }
