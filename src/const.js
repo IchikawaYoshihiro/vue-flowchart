@@ -1,7 +1,7 @@
 const DEFAULT_NODE = {
   id: null,
   title: "",
-  bodies: [],
+  bodies: [''],
   x: 0,
   y: 0,
 };
