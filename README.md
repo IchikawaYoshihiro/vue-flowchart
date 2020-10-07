@@ -1,12 +1,11 @@
 # vue-flowchart
-Drag and pinchable flowchart components in [Vue.js](https://vuejs.org/).
+A Mobile-friendly drag and pinchable flowchart components in [Vue.js](https://vuejs.org/).
 
 # demo
 ![demo](./docs/demo.png)
 
 This is a demo application combined with [BootstrapVue](https://bootstrap-vue.org/).
-
-https://upbeat-villani-060267.netlify.app/
+https://vue-flowchart.ichi-dev.info/
 
 # Usage 
 ## Install via npm
