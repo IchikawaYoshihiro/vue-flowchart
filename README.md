@@ -6,8 +6,6 @@ A Mobile-friendly drag and pinchable flowchart components in [Vue.js](https://vu
 
 This is a demo application combined with [BootstrapVue](https://bootstrap-vue.org/).
 
-https://vue-flowchart.ichi-dev.info/
-
 # Usage 
 ## Install via npm
 ```
